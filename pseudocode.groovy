@@ -20,10 +20,15 @@ state BASE {
 	table_id: int							// trzymana informacja w procesie o trzymanym stole
 	table_activity[TABLE_NUM]: array[bool]	// szacunkowa liczba osób, które pytają o stół
 	games_played: int						// liczba granych gier, jako priorytet
+	before_me : int
+	lamport_counter : int = 0
 
 	signal {
 		case TABLE_REQ<tid>:
 			table_activity[tid]++
+				
+				
+			
 		case GAME_OVER<tid>:
 			table_activity[tid] = 0
 	}
@@ -57,11 +62,13 @@ state IDLE {
 	}
 
 	logic {
+		before_me = 0;									//zerujemy ilość osób przed nami w kolejce zapytań
 		wait(random)									// czekaj losową ilość czasu
 		goto(TABLE_SEEK)								// zacznij szukać stołu
 	}
 	
 }
+
 
 state TABLE_SEEK {
 
@@ -69,6 +76,8 @@ state TABLE_SEEK {
 	acks = 0							// ilość zebranych zgód na dojście do stołu
 	naks = 0
 	received_acks : set
+
+	target_table = 0
 
 	signal {
 		case TABLE_FREE:
@@ -81,14 +90,15 @@ state TABLE_SEEK {
 			answers++
 			naks++
 		case TABLE_REQ<tid>:
-			if older(timestamp,games_played,id):		// sprawdź czy własny znacznik czasowy jest mniejszy, rozwiąż konflikty id
-				send(TABLE_OCCUPIED)	// nasz request jest starszy, odrzucamy ten przychodzący
-				
-			else:
-				if sender in received_acks[tid]:  //sprawdzamt, czy nie orzymaliśmy wcześniej od tego staruszka zgody na gre, jeżeli on też zmienił zdanie, to zmieniamy jego poprzednią ocene na brak zgody
-					acks --
-					naks++
+			if tid != target_table: //ktoś ubiega się o inny stół więc akceptujemy 
 				send(TABLE_FREE)
+			
+			else if  tid.lamport_counter < lamport_counter:     //dany proces ma większy priorytet przed nami, więg go wpyszczamy
+				send(TABLE_FREE)
+					
+			else:
+				send(TABLE_OCCUPIED)
+			lampoert_counter = max(tid.lamport_counter,lamport_counter) +1
 				
 	}
 
@@ -104,9 +114,11 @@ state TABLE_SEEK {
 		if naks < 4:
 			goto(TABLE_WAIT)							// jesteś wpuszczony, czekaj przy stole
 		else:
-			goto(IDLE)									// brak zgody, porzuć stan i zacznij od nowa
+			next_table = calculate_next_table(naks)
+			goto(TABLE_SEEK{TARGET_TABLE = next_table})									// nie ma miejsca przy danym stole, wyestymuj odpowiedni dla siebie stół i spróbuj do niego dołączyć
 	}
 }
+
 
 state TABLE_WAIT {
 
