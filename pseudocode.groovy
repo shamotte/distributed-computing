@@ -1,4 +1,5 @@
-// TODO: usunąć ten edge case z ackami bo nie trzeba jak lamport, napisać jawnie o lamporcie, zrobić tę metodę przeskakiwania w kolejce na bazie liczby requestów na danej pozycji i własnego id, zamienić broadcasty otagowane na broadcasty z parametrem bo są cięższe do obsłużenia
+// Kwestie znaczników czasowych i roztrzygania konfliktów względem czasu odbywają się z wykorzystaniem licznika lamporta
+// Jego implementacji nie opisujemy w poniższym pseudokodzie dla czytelności samej logiki stanów
 
 state IDLE, TABLE_SEEK, TABLE_WAIT, TABLE_PLAY
 
