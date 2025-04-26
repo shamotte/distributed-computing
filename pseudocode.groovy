@@ -18,10 +18,8 @@ const PLAYER_NUM,				// liczba graczy
 state BASE {
 
 	table_id: int							// trzymana informacja w procesie o trzymanym stole
-	table_activity[TABLE_NUM]: array[bool]	// szacunkowa liczba osób, które pytają o stół
-	games_played: int						// liczba granych gier, jako priorytet
-	before_me : int
-	lamport_counter : int = 0
+	table_activity[TABLE_NUM]: array[bool]				// szacunkowa liczba osób, które pytają o stół
+	
 
 	signal {
 		case TABLE_REQ<tid>:
@@ -75,7 +73,6 @@ state TABLE_SEEK {
 	answers = 0
 	acks = 0							// ilość zebranych zgód na dojście do stołu
 	naks = 0
-	received_acks : set
 
 	target_table = 0
 
@@ -120,38 +117,11 @@ state TABLE_SEEK {
 }
 
 
-state TABLE_WAIT {
 
-	ready = 0											// gracze gotowi do gry
-	votes = [0,0,...]		// liczba głosów na dane gry
-
-	signal {
-		case TABLE_REQ<tid>:
-			if table_id != tid:
-				send(TABLE_FREE)							// ktoś pyta o inny stół, nas nie obchodzi
-			else:
-				send(TABLE_OCCUPIED)							// ktoś chce wejść, nie ma miejsca, nie ok
-		case GAME_BGN_REQ<vote>#table_id:
-			votes[vote]++								// Odnotuj głos na grę
-			send(GAME_BGN_ACK)							// ktoś pyta się o gotowość, odpowiedz że tak
-			if older(req_timestamp, timestamp):			// TYLKO jeśli ten ktoś dołączył PO nas, anty-duplikat
-				ready++									// jeśli ktoś prosi to jest logicznie gotowy, zwiększ licznik
-		case GAME_BGN_ACK<vote>:
-			ready++										// ktoś potwierdził gotowość, zwiększ licznik
-	}
-
-	logic {
-		vote = random(games)
-		req_timestamp = broadcast(GAME_BGN_REQ<vote>#table_id)	// zgłoś gotowość na stole
-		wait until (ready == PLAYERS_NEEDED)					// czekaj aż wszyscy gotowi
-		winning_vote = max(vote,id)								// na bazie głosów (lub id) wybierz zwycięzcę
-		goto(TABLE_PLAY)										// graj
-	}
-}
 
 signal GAME_BGN<vote>								// dwukierunkowy sygnał gotowości do gry     | broadcast otagowany / odpowiedź
 
-state TABLE_WAIT_ALT {
+state TABLE_WAIT {
 
 	ready = 0											// gracze gotowi do gry
 	votes = [0,0,...]									// liczba głosów na dane gry
@@ -173,7 +143,9 @@ state TABLE_WAIT_ALT {
 
 	logic {
 		vote = random(games)
-		req_timestamp = broadcast(GAME_BGN<vote>#table_id)		// zgłoś gotowość na stole
+		for player in players:
+			player.send(GAME_BGN<vote>#table_id)   				//zagłosuj na stół
+		
 		wait until (ready == PLAYERS_NEEDED)					// czekaj aż wszyscy gotowi
 		winning_vote = max(vote,id)								// na bazie głosów (lub id) wybierz zwycięzcę
 		goto(TABLE_PLAY)										// graj
@@ -198,12 +170,14 @@ state TABLE_PLAY {
 
 	logic {
 		wait(random)									// symulacja grania pewien czas
-		broadcast(GAME_END_REQ#table_id)				// nadaj chęć zakończenia gry
+		for player in players:
+			player.send(GAME_END_REQ#table_id)  			// nadaj chęć zakończenia gry
 		wait until (game_over == PLAYERS_NEEDED)		// czekaj aż wszyscy będą gotowi
 		table_id = null									// opuść stół
 		goto(IDLE)										// wróć na start
 
-		games_played++
-		broadcast(GAME_OVER)
+		
+		if id = min(players.id):				//tylko jeden gracz przy stole wysyła broadcast
+			broadcast(GAME_OVER)
 	}
 }
