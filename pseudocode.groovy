@@ -18,7 +18,7 @@ const PLAYER_NUM,				// liczba graczy
 state BASE {
 
 	table_id: int							// trzymana informacja w procesie o trzymanym stole
-	table_activity[TABLE_NUM]: array[bool]				// szacunkowa liczba osób, które pytają o stół
+	table_activity[TABLE_NUM]: array[int]				// szacunkowa liczba osób, które pytają o stół
 	
 
 	signal {
@@ -33,16 +33,17 @@ state BASE {
 
 	// znajdź stół który jest jak najbliższy wypełnienia
 	// ale nie jest pełny
-	choose_table() {
+	choose_table( my_position : int) {
 		tid: int = -1
 		max: int = -inf
-		for t in table_activity:
+		for t  in table_activity:
 			if table_activity[t] >= PLAYERS_NEEDED:		// stół jest pełny
 				continue
-			if table_activity[t] > max:					// stół jest bliższy pełnego, taki preferujemy
-				tid = t
-				max = table_activity[t]
-		return tid
+			if table_activity[t] >= 0:					// odejmujemy wolne pozycje od naszej pozycji wcelu znalezienia naszego miejsca
+				my_position -= max(0,4-table_activity[t])
+				if my_position <=0:
+					return t;
+		return -1
 	}
 
 }
@@ -60,7 +61,6 @@ state IDLE {
 	}
 
 	logic {
-		before_me = 0;									//zerujemy ilość osób przed nami w kolejce zapytań
 		wait(random)									// czekaj losową ilość czasu
 		goto(TABLE_SEEK)								// zacznij szukać stołu
 	}
@@ -78,7 +78,6 @@ state TABLE_SEEK {
 
 	signal {
 		case TABLE_FREE:
-				received_acks[tid] += sender
 				answers++
 				acks++						// zgoda, zwiększ licznik
 
@@ -90,18 +89,18 @@ state TABLE_SEEK {
 			if tid != target_table: //ktoś ubiega się o inny stół więc akceptujemy 
 				send(TABLE_FREE)
 			
-			else if  tid.lamport_counter < lamport_counter:     //dany proces ma większy priorytet przed nami, więg go wpyszczamy
+			else if  (tid.lamport_counter,pid) < (lamport_counter,pid)  :     //dany proces ma większy priorytet przed nami, więg go wpyszczamy ewentualnie w przypadku remisu decydujemy za pomocą id
 				send(TABLE_FREE)
 					
 			else:
 				send(TABLE_OCCUPIED)
-			lampoert_counter = max(tid.lamport_counter,lamport_counter) +1
 				
 	}
 
 	logic {
-		received_acks = {}
-		table_id = choose_table()						// wybierz losowy stół
+
+		
+		table_id = target_table ?? chose_table(0)					//wybierz stół uwzględniając kto już gdzieś siedzi
 		if table_id == -1:
 			goto(IDLE)									// nie ma wolnego stołu, czekaj
 
@@ -111,7 +110,7 @@ state TABLE_SEEK {
 		if naks < 4:
 			goto(TABLE_WAIT)							// jesteś wpuszczony, czekaj przy stole
 		else:
-			next_table = calculate_next_table(naks)
+			next_table = choose_table(naks)	
 			goto(TABLE_SEEK{TARGET_TABLE = next_table})									// nie ma miejsca przy danym stole, wyestymuj odpowiedni dla siebie stół i spróbuj do niego dołączyć
 	}
 }
