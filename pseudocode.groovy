@@ -2,14 +2,14 @@
 
 state IDLE, TABLE_SEEK, TABLE_WAIT, TABLE_PLAY
 
+// Dodatkowo, każdy stan posiada pid (player id) oraz lamport_counter
 signal TABLE_REQ<tid>,			// prośba o dostanie się do stołu tid			| broadcast
 	TABLE_FREE,					// zgoda na zapytanie o stół					| odpowiedź
 	TABLE_OCCUPIED,				// odmowa na zapytanie o stół					| odpowiedź
-	GAME_BGN_REQ<vote>#tid,		// prośba (+ głos) o rozpoczęcie gry przy stole	| broadcast otagowany
-	GAME_BGN_ACK<vote,			// zgoda na zapytanie o rozpoczęcie	(+ głos)	| odpowiedź
-	GAME_END_REQ#tid, 			// prośba o zakończenie gry przy stole			| broadcast otagowany
+	GAME_BGN<tid,vote>			// dwukierunkowy sygnał gotowości do gry   		| broadcast / odpowiedź
+	GAME_END_REQ, 				// prośba o zakończenie gry przy stole			| wiadomość
 	GAME_END_ACK				// zgoda na zapytanie o koniec gry				| odpowiedź
-	GAME_OVER<tid>				// broadcast że gra się zakończyła na stole, pobudka żeby szukać stołu jak ktoś stał
+	GAME_OVER<tid>				// gra się zakończyła na danym stole			| broadcast
 
 const PLAYER_NUM,				// liczba graczy
 	TABLE_NUM,					// liczba stołów
@@ -18,31 +18,39 @@ const PLAYER_NUM,				// liczba graczy
 state BASE {
 
 	table_id: int							// trzymana informacja w procesie o trzymanym stole
-	table_activity[TABLE_NUM]: array[int]				// szacunkowa liczba osób, które pytają o stół
-	
+	table_activity[TABLE_NUM]: array[int]	// liczba osób, które pytają o stoły, aby oszacować najlepszy wybór
 
 	signal {
 		case TABLE_REQ<tid>:
 			table_activity[tid]++
-				
-				
-			
+
 		case GAME_OVER<tid>:
 			table_activity[tid] = 0
 	}
 
 	// znajdź stół który jest jak najbliższy wypełnienia
 	// ale nie jest pełny
-	choose_table( my_position : int) {
+	choose_table(my_position : int) {
 		tid: int = -1
 		max: int = -inf
+
 		for t  in table_activity:
-			if table_activity[t] >= PLAYERS_NEEDED:		// stół jest pełny
+			// stół jest pełny
+			if table_activity[t] >= PLAYERS_NEEDED:
 				continue
-			if table_activity[t] >= 0:					// odejmujemy wolne pozycje od naszej pozycji wcelu znalezienia naszego miejsca
+
+			// odejmujemy wolne pozycje od naszej pozycji
+			// (ilość naków przy konflikcie o miejsce)
+			// w celu przewidzenia naszego miejsca
+			if table_activity[t] >= 0:
 				my_position -= max(0,4-table_activity[t])
+
+				// przeskoczyliśmy o tyle miejsc, ile dostaliśmy naków
+				// i stół nie jest pełny
+				// to miejsce powinno być dostępne bez większych problemów
 				if my_position <=0:
 					return t;
+
 		return -1
 	}
 
@@ -50,133 +58,165 @@ state BASE {
 
 state IDLE {
 
+	// czy czekać na sygnał zakończenia gry
+	// ustawiany przy przejściu do stanu, kiedy nie ma wolnych stołów
+	wait_gameover = false
+
 	signal {
+		// jak ktoś chce jakiś stół to ok, nie ma problemu, to nas nie dotyczy
 		case TABLE_REQ<tid>:
-			send(TABLE_FREE)							// jak ktoś chce jakiś stół to ok, nie ma problemu, to nas nie dotyczy
-							
-		case GAME_OVER:
-			logic()										// pobudka :)
-			
-												
+			send(TABLE_FREE)
 	}
 
 	logic {
-		wait(random)									// czekaj losową ilość czasu
-		goto(TABLE_SEEK)								// zacznij szukać stołu
+		// czekaj (jeśli trzeba) na zakończenie gry
+		if wait_gameover:
+			await(GAME_OVER<tid>)
+
+		// czekaj losową ilość czasu i zacznij szukać stołu
+		wait(random)
+		goto(TABLE_SEEK)
 	}
-	
 }
 
 
 state TABLE_SEEK {
 
-	answers = 0
-	acks = 0							// ilość zebranych zgód na dojście do stołu
-	naks = 0
+	answers = 0		// ilość zebranych odpowiedzi na dojście do stołu
+	acks = 0		// ilość zebranych niezgód na dojście do stołu
+	naks = 0		// ilość zebranych zgód na dojście do stołu
 
 	target_table = 0
 
 	signal {
 		case TABLE_FREE:
-				answers++
-				acks++						// zgoda, zwiększ licznik
-
+			// zgoda
+			answers++
+			acks++
 
 		case TABLE_OCCUPIED:
+			// brak zgody
 			answers++
 			naks++
+
 		case TABLE_REQ<tid>:
-			if tid != target_table: //ktoś ubiega się o inny stół więc akceptujemy 
+			// ktoś ubiega się o inny stół więc akceptujemy 
+			if tid != target_table:
 				send(TABLE_FREE)
-			
-			else if  (tid.lamport_counter,pid) < (lamport_counter,pid)  :     //dany proces ma większy priorytet przed nami, więg go wpyszczamy ewentualnie w przypadku remisu decydujemy za pomocą id
+
+			// dany proces ma większy priorytet przed nami, więc go wpuszczamy
+			// ewentualnie w przypadku remisu decydujemy za pomocą id
+			else if (tid.lamport_counter, pid) < (lamport_counter, pid):
 				send(TABLE_FREE)
-					
 			else:
 				send(TABLE_OCCUPIED)
-				
 	}
 
 	logic {
+		// wybierz stół uwzględniając kto już gdzieś siedzi
+		table_id = target_table ?? chose_table(0)
 
-		
-		table_id = target_table ?? chose_table(0)					//wybierz stół uwzględniając kto już gdzieś siedzi
+		// nie ma wolnego stołu, czekaj dalej
 		if table_id == -1:
-			goto(IDLE)									// nie ma wolnego stołu, czekaj
+			goto(IDLE, wait_gameover = true)
 
-		broadcast(TABLE_REQ<table_id>)					// ogłoś globalnie prośbę o stół
-		wait until (answers == PLAYERS_NUM)				// czekaj na wszystkie zgody pozytywne
+		// ogłoś globalnie prośbę o stół
+		broadcast(TABLE_REQ<table_id>)
+
+		// czekaj na wszystkie odpowiedzi
+		wait until (answers == PLAYERS_NUM)
 
 		if naks < 4:
-			goto(TABLE_WAIT)							// jesteś wpuszczony, czekaj przy stole
+			// są mniej niż 4 niezgody, jest miejsce przy stole
+			goto(TABLE_WAIT)
 		else:
-			next_table = choose_table(naks)	
-			goto(TABLE_SEEK{TARGET_TABLE = next_table})									// nie ma miejsca przy danym stole, wyestymuj odpowiedni dla siebie stół i spróbuj do niego dołączyć
+			// nie ma miejsca przy danym stole
+			// wyestymuj odpowiedni dla siebie stół i spróbuj do niego dołączyć
+			next_table = choose_table(naks)
+			goto(TABLE_SEEK{TARGET_TABLE = next_table})
 	}
 }
 
 
-
-
-signal GAME_BGN<vote>								// dwukierunkowy sygnał gotowości do gry     | broadcast otagowany / odpowiedź
-
 state TABLE_WAIT {
 
-	ready = 0											// gracze gotowi do gry
-	votes = [0,0,...]									// liczba głosów na dane gry
-	players = {}										// zbiór znanych graczy
+	ready = 0				// gracze gotowi do gry
+	votes = [0,0,...]		// liczba głosów na dane gry
+	players = {}			// zbiór znanych graczy
 
 	signal {
 		case TABLE_REQ<tid>:
 			if table_id != tid:
-				send(TABLE_FREE)							// ktoś pyta o inny stół, nas nie obchodzi
+				// ktoś pyta o inny stół, nas nie obchodzi
+				send(TABLE_FREE)
 			else:
-				send(TABLE_OCCUPIED)							// ktoś chce wejść, nie ma miejsca, nie ok
-		case GAME_BGN<vote>#table_id:
-			if id not in players:
-				send(GAME_BGN<vote>)					// nowo poznany gracz, przekaż gotowość + głos
-				players += id							// gracz poznany
-				votes[vote]++							// Odnotuj głos na grę
-				ready++									// zwiększ licznik gotowości
+				// ktoś chce wejść, nie ma miejsca, nie ok
+				send(TABLE_OCCUPIED)
+
+		case GAME_BGN<tid,vote>:
+			if signal.tid = table_id:
+				if signal.pid not in players:
+					send(GAME_BGN<tid,vote>)	// nowo poznany gracz, przekaż gotowość+głos
+					players += signal.tid		// gracz poznany
+					votes[vote]++				// Odnotuj głos na grę
+					ready++						// zwiększ licznik gotowości
 	}
 
 	logic {
 		vote = random(games)
-		for player in players:
-			player.send(GAME_BGN<vote>#table_id)   				//zagłosuj na stół
-		
-		wait until (ready == PLAYERS_NEEDED)					// czekaj aż wszyscy gotowi
-		winning_vote = max(vote,id)								// na bazie głosów (lub id) wybierz zwycięzcę
-		goto(TABLE_PLAY)										// graj
+
+		// zgłoś gotowość+głos osobom już przy stole
+		broadcast(GAME_BGN<table_id,vote>)
+
+		// czekaj aż wszyscy gotowi
+		wait until (ready == PLAYERS_NEEDED)
+
+		// na bazie głosów (lub id) wybierz zwycięzcę i graj
+		winning_vote = max(vote,id)
+		goto(TABLE_PLAY)
 	}
 }
 
 state TABLE_PLAY {
 
-	game_over = 0										// licznik graczy gotowych do zakończenia gry
+	// licznik graczy gotowych do zakończenia gry
+	game_over = 0
 
 	signal {
 		case TABLE_REQ<tid>:
 			if table_id != tid:
-				send(TABLE_FREE)							// ktoś pyta o inny stół, nas nie obchodzi
+				// ktoś pyta o inny stół, nas nie obchodzi
+				send(TABLE_FREE)
 			else:
-				send(TABLE_OCCUPIED)							// ktoś chce wejść, gra trwa więc nie ok
-		case GAME_END_REQ#table_id:
-			send(GAME_END_ACK)							// ktoś pyta się o zakończenie, odpowiedz że tak
+				// ktoś chce wejść, gra trwa więc nie ok
+				send(TABLE_OCCUPIED)
+
+		// ktoś pyta się o zakończenie, odpowiedz że tak
+		case GAME_END_REQ:
+			send(GAME_END_ACK)
+
+		// ktoś inny jest też gotowy zakończyć grę, zwiększ licznik
 		case GAME_END_ACK:
-			game_over++									// ktoś inny jest gotowy zakończyć grę, zwiększ licznik
+			game_over++
 	}
 
 	logic {
-		wait(random)									// symulacja grania pewien czas
-		for player in players:
-			player.send(GAME_END_REQ#table_id)  			// nadaj chęć zakończenia gry
-		wait until (game_over == PLAYERS_NEEDED)		// czekaj aż wszyscy będą gotowi
-		table_id = null									// opuść stół
-		goto(IDLE)										// wróć na start
+		// czas zanim gracz chce zakończyć grę
+		wait(random)
 
-		
-		if id = min(players.id):				//tylko jeden gracz przy stole wysyła broadcast
+		// nadaj chęć zakończenia gry graczom przy stole
+		for player in players:
+			player.send(GAME_END_REQ)
+
+		// czekaj aż wszyscy będą gotowi
+		wait until (game_over == PLAYERS_NEEDED)
+
+		// opuść stół
+		table_id = null
+		goto(IDLE)
+
+		//tylko jeden gracz przy stole wysyła broadcast
+		if id = min(players.id):
 			broadcast(GAME_OVER)
 	}
 }
