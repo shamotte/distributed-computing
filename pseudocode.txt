@@ -48,7 +48,8 @@ state BASE {
 		tid: int := -1
 		max: int := -inf
 
-		for t  in table_activity:
+		// Przechodź przez stoły, preferując te bardzij wypełnione
+		for t in table_activity (ordered by descending value):
 			// stół jest pełny
 			if table_activity[t] >= PLAYERS_NEEDED:
 				continue
