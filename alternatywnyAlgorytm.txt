@@ -1,0 +1,106 @@
+
+signals:
+table_req
+table_ack
+vote
+end_request
+game_over
+
+struct queue_position{
+    pid : int
+    timestamp : int
+
+}
+
+state base{
+    queue : vector<pid>
+    data_form_who : array[bool]
+
+    signal game_over{to_erase: array[int]}{
+        queue.erase(to_erase)
+
+    }
+
+    signal table_req:
+        queue.insert(queue.find(timestamp > table_rek.timestamp).queue_position{table_req})
+        data_form_who[tabel_req] = true
+        send(table_ack)
+
+    
+    signal table_ack:
+        data_form_who[table_ack] = true
+
+}
+
+state idle{
+
+signal:
+    
+
+
+logic:
+    wait_for(random())
+    priority = lampoet_counter
+    goto seek;
+}
+
+
+state seek{}
+
+broadcast(table_req)
+
+
+retry: 
+
+wait_until(all(data_from_who))
+
+for table_num in table_count:
+    for i in table seat_count:
+        if queue[table_num * 4 + i] == pid:
+            goto play { table_companions = queue[i:i+3]}
+
+await game_over
+goto retry;
+
+
+
+}
+
+state play{
+
+signal vote{
+    votes++
+}
+
+signal end_request{
+    end_requests++
+}
+
+table_companions :P array[int]
+
+votes =0
+end_requests =0
+
+logic:
+vote = random()
+
+for tc in table_companions{
+    tc.send(vote)
+}
+
+wait_until(votes == votes_required)
+
+///grańsko
+
+
+wait_for(random())
+
+for tc in table_companions{
+    tc.send(end_request)
+}
+
+if(pid == min(table_companions))
+    breaodcast(game_over)
+
+
+}
