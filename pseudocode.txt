@@ -100,14 +100,19 @@ state TABLE_SEEK {
 	answers := 0			// ilość zebranych odpowiedzi na dojście do stołu
 	acks := 0				// ilość zebranych niezgód na dojście do stołu
 	naks := 0				// ilość zebranych zgód na dojście do stołu
+	acknowledged_by := {}	// osoby, które wyraziły nam zgodę
 
 	target_table := null	// stół, do którego próbujemy się dostać
+
+	priority := lamport_counter	// priorytet, ustawiany tylko przy wstępnym wejściu
+								// do stanu, zachowywany przy restarcie stanu
 
 	signal {
 		case TABLE_FREE:
 			// zgoda
 			answers++
 			acks++
+			acknowledged_by += signal.pid
 
 		case TABLE_OCCUPIED:
 			// brak zgody
@@ -119,21 +124,28 @@ state TABLE_SEEK {
 			if tid != target_table:
 				send(TABLE_FREE)
 
+			// ktoś, kto nam wyraził zgodę, teraz się ubiega
+			// nie możemy pozwolić - gwarancja bezpieczeństwa
+			if signal.pid in acknowledged_by:
+				send(TABLE_OCCUPIED)
+
 			// dany proces ma większy priorytet przed nami, więc go wpuszczamy
 			// ewentualnie w przypadku remisu decydujemy za pomocą id
-			else if (tid.lamport_counter, pid) < (lamport_counter, pid):
+			else if (tid.lamport_counter, pid) < (priority, pid):
 				send(TABLE_FREE)
 			else:
 				send(TABLE_OCCUPIED)
 	}
 
 	logic {
+
 		// wybierz stół uwzględniając kto już gdzieś siedzi
 		table_id := target_table ?? chose_table(0)
 
 		// nie ma wolnego stołu, czekaj dalej
 		if table_id == -1:
-			goto(IDLE{wait_gameover := true})
+			await(GAME_OVER)
+			restart_state()
 
 		// ogłoś globalnie prośbę o stół
 		broadcast(TABLE_REQ<table_id>)
@@ -148,7 +160,7 @@ state TABLE_SEEK {
 			// nie ma miejsca przy danym stole
 			// wyestymuj odpowiedni dla siebie stół i spróbuj do niego dołączyć
 			next_table := choose_table(naks)
-			goto(TABLE_SEEK{target_table := next_table})
+			restart_state({target_table := next_table})
 	}
 }
 
