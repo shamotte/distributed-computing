@@ -1,106 +1,105 @@
-
 signals:
-table_req
-table_ack
-vote
-end_request
-game_over
+    SIG_TABLE_REQ
+    SIG_SIG_TABLE_ACK
+    SIG_VOTE
+    SIG_END_REQ
+    SIG_GAME_END
 
-struct queue_position{
+
+struct queue_position {
     pid : int
     timestamp : int
-
 }
 
-state base{
-    queue : vector<pid>
-    data_form_who : array[bool]
 
-    signal game_over{to_erase: array[int]}{
+state base{
+
+    priority: int = null
+
+    queue: vector<pid> = []
+    data_form_who: array[bool] = []
+
+    signal SIG_GAME_END{to_erase: array[int]}{
         queue.erase(to_erase)
 
     }
 
-    signal table_req:
-        queue.insert(queue.find(timestamp > table_rek.timestamp).queue_position{table_req})
+    signal SIG_TABLE_REQ:
+        queue.insert(queue.find(timestamp > table_rek.timestamp).queue_position{SIG_TABLE_REQ})
         data_form_who[tabel_req] = true
-        send(table_ack)
+        send(SIG_TABLE_ACK)
 
     
-    signal table_ack:
-        data_form_who[table_ack] = true
+    signal SIG_TABLE_ACK:
+        data_form_who[SIG_TABLE_ACK] = true
 
 }
+
 
 state idle{
 
-signal:
-    
+    signal:
 
-
-logic:
-    wait_for(random())
-    priority = lampoet_counter
-    goto seek;
+    logic:
+        wait_for(random())
+        priority = lampoet_counter
+        goto seek;
 }
 
 
-state seek{}
+state seek {
 
-broadcast(table_req)
+    logic {
+        broadcast(SIG_TABLE_REQ)
 
+        retry:
 
-retry: 
+        wait_until(all(data_from_who))
 
-wait_until(all(data_from_who))
+        for table_num in table_count:
+            for i in table seat_count:
+                if queue[table_num * 4 + i] == pid:
+                    goto play { table_companions = queue[i:i+3]}
 
-for table_num in table_count:
-    for i in table seat_count:
-        if queue[table_num * 4 + i] == pid:
-            goto play { table_companions = queue[i:i+3]}
-
-await game_over
-goto retry;
-
-
-
+        await SIG_GAME_END
+        goto :retry
+    }
 }
+
 
 state play{
 
-signal vote{
-    votes++
-}
+    signal SIG_VOTE{
+        SIG_VOTEs++
+    }
 
-signal end_request{
-    end_requests++
-}
+    signal SIG_END_REQ{
+        SIG_END_REQs++
+    }
 
-table_companions :P array[int]
+    table_companions :P array[int]
 
-votes =0
-end_requests =0
+    SIG_VOTEs =0
+    SIG_END_REQs =0
 
-logic:
-vote = random()
+    logic:
+    SIG_VOTE = random()
 
-for tc in table_companions{
-    tc.send(vote)
-}
+    for tc in table_companions{
+        tc.send(SIG_VOTE)
+    }
 
-wait_until(votes == votes_required)
+    wait_until(SIG_VOTEs == SIG_VOTEs_required)
 
-///grańsko
-
-
-wait_for(random())
-
-for tc in table_companions{
-    tc.send(end_request)
-}
-
-if(pid == min(table_companions))
-    breaodcast(game_over)
+    ///grańsko
 
 
+    wait_for(random())
+
+    for tc in table_companions{
+        tc.send(SIG_END_REQ)
+    }
+
+    if(pid == min(table_companions))
+        breaodcast(SIG_GAME_END)
 }
