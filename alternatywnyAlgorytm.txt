@@ -1,105 +1,186 @@
-signals:
-    SIG_TABLE_REQ
-    SIG_SIG_TABLE_ACK
-    SIG_VOTE
-    SIG_END_REQ
-    SIG_GAME_END
+// Programowanie Rozproszone - Projekt
+// 8. Głosowanie staruszków.
 
+// 156080, 156022
+
+// Kwestie znaczników czasowych i roztrzygania konfliktów względem czasu odbywają się z wykorzystaniem licznika lamporta
+// Jego implementacji nie opisujemy w poniższym pseudokodzie dla czytelności samej logiki stanów
+
+// TODO: czy głosowanie od razu z TABLE_REQ jest ok? wtedy od razu po wyjściu z seeka wie jaka gra. czy ta synchronizacja kiedy każdy jest gotowy do grania powinna być?
+// TODO: czy gracze zawsze chcą grać czy mogą sobie siedzieć na idlu ile chcą
+
+// Sygnały
+// Dodatkowo, każdy sygnał posiada pid (player id) oraz lamport_counter
+signal
+    SIG_TABLE_REQ(priority: int)               // zgłoszenie chęci dołączenia do stołu
+    SIG_SIG_TABLE_ACK()           // uznanie chęci dołączenia do stołu
+    SIG_VOTE                    // głosowanie (przy stole) na grę, zarazem gotowość do gry
+    SIG_END_REQ                 // zgłoszenie gotowości do zakończenia gry
+    SIG_GAME_END(players: array[int], table_number: int)                // sygnał zakończenia gry, wysyłany przez 1 osobę na stół
+
+// Stałe wynikające z zadania
+const
+    PLAYER_NUM,		    		// liczba graczy
+	TABLE_NUM,          		// liczba stołów
+    GAME_NUM,                   // liczba gier
+	SEAT_COUNT                  // gracze potrzebni do gry
+
+// Stany
+state
+    STATE_IDLE                  // nic nie robienie
+    STATE_SEEK                  // aktywna chęć do gry
+    STATE_PLAY                  // gra przy stole
 
 struct queue_position {
     pid : int
     timestamp : int
 }
 
+// Stan "bazowy", rzeczy wykonywane zawsze, niezależnie od stanu
+state STATE_BASE {
 
-state base{
+    priority: int = null                                // priorytet zapytania o stół
 
-    priority: int = null
+    queue: list[pid] = []                               // Kolejka wszystkich graczy chętnych do gry i grających
+    table_numbers: array[tid] = [1,2,...,TABLE_NUM]     // Numery stołów
 
-    queue: vector<pid> = []
-    data_form_who: array[bool] = []
+    // Inicjalizacja gry
+    table_number: int = null                            // Numer stołu przy którym jesteś
+    companions: set[pid] = {}                           // Towarzysze przy stole
+    game_ready: int = 0                                 // Liczba gotowych graczy przy stole
+    end_ready: int = 0                                  // Liczba gotowych do zakończenia gry
+    votes: array[int] = [0,0,0,...]                     // Głosy na poszczególne gry
+    chosen_game: int = null                             // Wybrana do zagrania gra
 
-    signal SIG_GAME_END{to_erase: array[int]}{
-        queue.erase(to_erase)
+    players_acknowledged: array[bool] = [false,...]     // Gracze o których mamy informacje, że chcą lub nie chcą grać
 
+    // Jakaś gra została zakończona, usuń danych graczy z kolejki
+    signal SIG_GAME_END(players: array[int], table_number: int) {
+        for (player in players) {
+            queue.erase(player)
+            players_acknowledged[players] = false
+
+            // Przesuń stół na koniec kolejki
+            table_numbers.move_back(table_number)
+        }
     }
 
-    signal SIG_TABLE_REQ:
+    signal SIG_TABLE_REQ(priority: int) {
         queue.insert(queue.find(timestamp > table_rek.timestamp).queue_position{SIG_TABLE_REQ})
-        data_form_who[tabel_req] = true
+        players_acknowledged[tabel_req] = true
         send(SIG_TABLE_ACK)
+    }
 
-    
-    signal SIG_TABLE_ACK:
-        data_form_who[SIG_TABLE_ACK] = true
+    // Gracz został
+    signal SIG_TABLE_ACK() {
+        players_acknowledged[SIG_TABLE_ACK] = true
+    }
+
+    // Odbierz głos + gotowość do gry
+    // Kod znajduje się tutaj, a nie w STATE_PLAY, aby uniknąć brzegowych sytuacji,
+    //      gdzie gracz traciłby wysłane mu sygnały przed przejściem do tego stanu
+    signal SIG_VOTE(game_id: int) {
+        game_ready++
+        votes[game_id]++
+    }
+
+    // Ktoś jest gotowy do zakończenia gry
+    signal SIG_END_REQ() {
+        end_ready++
+    }
 
 }
 
 
-state idle{
+state STATE_IDLE {
 
-    signal:
-
-    logic:
-        wait_for(random())
-        priority = lampoet_counter
-        goto seek;
-}
-
-
-state seek {
+    // Ustaw / resestuj wartości
+    table_number = null
+    companions = {}
+    game_ready = 0
+    end_ready = 0
+    votes = [0,0,0,...]
+    chosen_game = null
 
     logic {
-        broadcast(SIG_TABLE_REQ)
+        wait_for(random())
+        priority = lamport_counter
+        goto seek;
+    }
 
+}
+
+
+state STATE_SEEK {
+
+    logic {
+        // Nadaj chęć do gry
+        broadcast(SIG_TABLE_REQ(priority))
+
+        // Punkt powrotu
         retry:
 
-        wait_until(all(data_from_who))
+        // Czekaj na odpowiedzi od innych graczy
+        wait_until(all(players_acknowledged))
 
-        for table_num in table_count:
-            for i in table seat_count:
-                if queue[table_num * 4 + i] == pid:
-                    goto play { table_companions = queue[i:i+3]}
+        // Sprawdź, do którego stołu należysz na bazie kolejki
+        players_remaining: int = queue.size
+        for (pos = 0; pos < queue.size; pos += SEAT_COUNT) {
+            table_index = floor(position / SEAT_COUNT)
+            // Stół niepełny, przestań rozważać
+            if (players_remaining < SEAT_COUNT) break
 
+            // Nasz gracz należy do stołu
+            if (pid in queue[pos..pos+SEAT_COUNT].pid) {
+                goto(play {
+                    table_number = table_numbers[table_index],
+                    companions = { queue[table_index * 4 .. table_index * 4 + SEAT_COUNT].pid }
+                })
+            }
+
+            players_remaining -= SEAT_COUNT
+        }
+
+        // Stoły są pełne, czekaj na wolny stół
         await SIG_GAME_END
         goto :retry
     }
+
 }
 
 
-state play{
+state STATE_PLAY {
 
-    signal SIG_VOTE{
-        SIG_VOTEs++
+    logic {
+
+        // Zagłosuj
+        vote = random(0..GAME_NUM)
+        for (comp in companions) {
+            comp.send(SIG_VOTE(vote))
+        }
+
+        // Czekaj na gotowość wszystkich
+        wait_until(SIG_VOTEs == SIG_VOTEs_required)
+
+        // Wybrana gra, sortowana po głosach i ewentualnie id
+        chosen_game = votes.sort(value descending, id ascending).first()
+
+        // Granie
+        wait_for(random())
+
+        // Gotowość do zakończenia gry
+        for comp in companions{
+            comp.send(SIG_END_REQ)
+        }
+
+        // Wszyscy gotowi do zakończzenia gry
+        if (pid == min(companions)) {
+            // Tylko jeden gracz wysyła sygnał zakończenia gry
+            broadcast(SIG_GAME_END(companions))
+        }
+
+        // Powrót do stanu idle
+        goto(STATE_IDLE)
     }
 
-    signal SIG_END_REQ{
-        SIG_END_REQs++
-    }
-
-    table_companions :P array[int]
-
-    SIG_VOTEs =0
-    SIG_END_REQs =0
-
-    logic:
-    SIG_VOTE = random()
-
-    for tc in table_companions{
-        tc.send(SIG_VOTE)
-    }
-
-    wait_until(SIG_VOTEs == SIG_VOTEs_required)
-
-    ///grańsko
-
-
-    wait_for(random())
-
-    for tc in table_companions{
-        tc.send(SIG_END_REQ)
-    }
-
-    if(pid == min(table_companions))
-        breaodcast(SIG_GAME_END)
 }
