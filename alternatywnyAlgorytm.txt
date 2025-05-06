@@ -10,11 +10,11 @@
 // Sygnały
 // Dodatkowo, każdy sygnał posiada pid (player id) oraz lamport_counter
 signal
-    SIG_TABLE_REQ(priority: int, vote: int)                 // zgłoszenie chęci dołączenia do stołu
-    SIG_SIG_TABLE_ACK()                                     // uznanie chęci dołączenia do stołu
-    SIG_TABLE(players: array[int], table_number: int)       // danie znać innym, że należą do stołu
-    SIG_END_REQ                                             // zgłoszenie gotowości do zakończenia gry
-    SIG_GAME_END(players: array[int], table_number: int)    // sygnał zakończenia gry, wysyłany przez 1 osobę na stół
+    SIG_TABLE_REQ(priority: int, vote: int)                                  // zgłoszenie chęci dołączenia do stołu
+    SIG_SIG_TABLE_ACK()                                                      // uznanie chęci dołączenia do stołu
+    SIG_TABLE(companions: array[int], table_number: int, chosen_game: int)   // danie znać innym, że należą do stołu
+    SIG_END_REQ                                                              // zgłoszenie gotowości do zakończenia gry
+    SIG_GAME_END(players: array[int], table_number: int)                     // sygnał zakończenia gry, wysyłany przez 1 osobę na stół
 
 
 // Stałe wynikające z zadania
@@ -52,9 +52,7 @@ state STATE_BASE {
     // Inicjalizacja gry
     table_number: int = null                            // Numer stołu przy którym jesteś
     companions: set[pid] = {}                           // Towarzysze przy stole
-    game_ready: int = 0                                 // Liczba gotowych graczy przy stole
     end_ready: int = 0                                  // Liczba gotowych do zakończenia gry
-    votes: array[int] = [0,0,0,...]                     // Głosy na poszczególne gry
     chosen_game: int = null                             // Wybrana do zagrania gra
 
     players_acknowledged: array[bool] = [false,...]     // Gracze o których mamy informacje, że chcą lub nie chcą grać
@@ -97,9 +95,7 @@ state STATE_IDLE {
     // Ustaw / resestuj wartości
     table_number = null
     companions = {}
-    game_ready = 0
     end_ready = 0
-    votes = [0,0,0,...]
     chosen_game = null
 
     logic {
@@ -114,8 +110,10 @@ state STATE_IDLE {
 state STATE_SEEK {
 
     // Odbierz informację o stole
-    signal SIG_TABLE(players: array[int], table_number: int) {
-        companions = players
+    signal SIG_TABLE(companions: array[int], table_number: int, chosen_game: int) {
+        companions = companions
+        table_number = table_number
+        chosen_game = chosen_game
         goto(STATE_PLAY)
     }
 
@@ -131,7 +129,7 @@ state STATE_SEEK {
         wait_until(all(players_acknowledged))
 
         // Sprawdź, do którego stołu należysz na bazie kolejki
-        players_remaining: int = queue.size
+        // Pętla sama pominie niepełne stoły, więc nie musimy się tym martwić
         for (pos = 0; pos < queue.size; pos += SEAT_COUNT) {
             table_index = floor(position / SEAT_COUNT)
 
@@ -140,13 +138,32 @@ state STATE_SEEK {
             //      ma pewność, że nikt przed niego nie wejdzie,
             //      niech on da znać kompanom o stanie stołu
             if (pid in queue[pos+SEAT_COUNT].pid) {
+                table_number = table_numbers[table_index]
+                companions = queue[pos-SEAT_COUNT..pos].pid
+
+                // Zdobądź głosy, na bazie własnej pozycji i stołu, w którym się znajduje
+                votes: array[int] = [0,0,0,...] // Głosy na gry
+                for (v in queue[pos-SEAT_COUNT..pos]) {
+                    votes[queue[v].vote]++
+                }
+
+                // Wybrana gra, sortowana po głosach i ewentualnie id
+                chosen_game = votes.sort(value descending, id ascending).first()
+
+                // Wyślij innym sygnał o rozpoczęciu gry i informacje o stole
+                for comp in companions {
+                    if (comp != pid) {
+                        comp.send(SIG_TABLE_REQ(companions, table_number, chosen_game))
+                    }
+                }
+
+                // Sam przejdź do stanu gry
                 goto(play {
-                    table_number = table_numbers[table_index],
-                    companions = { queue[table_index * 4 .. table_index * 4 + SEAT_COUNT].pid }
+                    table_number = table_number,
+                    companions = companions,
+                    chosen_game = chosen_game
                 })
             }
-
-            players_remaining -= SEAT_COUNT
         }
 
         // Stoły są pełne, czekaj na wolny stół
@@ -160,15 +177,6 @@ state STATE_SEEK {
 state STATE_PLAY {
 
     logic {
-
-        // Zdobądź głosy, na bazie własnej pozycji i stołu, w którym się znajduje
-        own_seat = floor(queue.index / SEAT_COUNT)
-        for (pos in queue[own_seat..own_seat+SEAT_COUNT]) {
-            votes[queue[pos].vote]++
-        }
-
-        // Wybrana gra, sortowana po głosach i ewentualnie id
-        chosen_game = votes.sort(value descending, id ascending).first()
 
         // Granie
         wait_for(random())
