@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        coutcolor("otrzymano od ", status.MPI_SOURCE, "od", d.priority)
+        coutcolor("otrzymano od ", status.MPI_SOURCE, "od", d.priority);
     }
 
     std::cout << "rank " << RANK << "\n";
