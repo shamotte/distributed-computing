@@ -142,18 +142,18 @@ int main(int argc, char **argv)
 
 #pragma endregion
 
-    Context *ctx = Context();
-    ctx->current_state = StateIdle();
-    current_state.EnterState();
+    Context *ctx = new Context();
+    ctx->current_state = new StateIdle();
+    ctx->current_state.EnterState();
     while (true)
     {
         Datatype d;
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        coutcolor("otrzymano od ", d.priority, "od", tatus.MPI_SOURCE);
+        coutcolor("otrzymano od ", d.priority, "od", status.MPI_SOURCE);
         // obieranie sygbnałów
 
-        std::unique_lock(current_state.ctx->state_mutex);
+        std::unique_lock(ctx->state_mutex);
 
         current_state.ProcessSignal();
     }
