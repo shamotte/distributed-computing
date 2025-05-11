@@ -12,46 +12,18 @@
 #include "functions.h"
 #include "states.h"
 
-class BaseState
+void BaseState::EnterState()
 {
+    ctx->logic_thread = std::thread(BaseState::Logic, this);
+}
 
-public:
-    Context *ctx;
-
-    virtual void Logic();
-    virtual void ProcessSignal();
-
-    void EnterState()
-    {
-        ctx->logic_thread = std::thread(BaseState::Logic, this);
-    }
-
-    void changeState(State new_state)
-    {
-        std::unique_lock(ctx->state_mutex);
-    }
-};
-
-class StateIdle : BaseState
+void BaseState::Logic()
 {
-public:
-    void Logic()
-    {
-        coutcolor("process zaczął czekanie");
-        std::chrono::seconds time_to_sleep(rand() % 10);
-        std::this_thread::sleep_for(time_to_sleep);
-        changeState(STATE_SEEK);
-    }
+}
 
-    void ProcessSignal()
-    {
-    }
-};
-
-class StateSeek : BaseState
+void BaseState::changeState(State new_state)
 {
-};
+    std::unique_lock(ctx->state_mutex);
 
-class StatePlay : BaseState
-{
-};
+    ctx->current_state = ctx->States[new_state];
+}

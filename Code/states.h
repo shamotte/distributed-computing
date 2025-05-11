@@ -8,6 +8,7 @@
 #include <string>
 #include <set>
 #include <chrono>
+#include <map>
 
 #include "config.h"
 #include "functions.h"
@@ -25,6 +26,7 @@ class Context
 {
 public:
     BaseState *current_state;
+    std::map<State, BaseState *> States;
     std::mutex state_mutex;
     int priority = 0;
 
@@ -44,8 +46,8 @@ class BaseState
 public:
     Context *ctx;
 
+    void EnterState();
     virtual void Logic();
-    virtual void ProcessSignal();
 
     void changeState(State new_state);
 };
