@@ -94,7 +94,7 @@ void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 
 int main(int argc, char **argv)
 {
-    MPI_Init(&argc, &argv);
+
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
