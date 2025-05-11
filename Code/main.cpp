@@ -130,6 +130,7 @@ int main(int argc, char **argv)
         std::cout << "odebrano " << d.priority << " od " << status.MPI_SOURCE << "\n";
     }
 
+    std::cout << "rank " << RANK << "\n";
     MPI_Type_free(&my_data);
     MPI_Finalize();
     return 0;
