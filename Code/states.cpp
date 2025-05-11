@@ -14,7 +14,7 @@
 
 void BaseState::EnterState()
 {
-    ctx->logic_thread = std::thread(BaseState::Logic, this);
+    ctx->logic_thread = std::thread(&BaseState::Logic, this);
 }
 
 void BaseState::Logic()
