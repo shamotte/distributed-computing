@@ -80,15 +80,15 @@ void Send_SIG_SIG_TABLE_ACK()
 {
 }
 
-void Send_SIG_TABLE(set<int> companions, int table_number, int chosen_game)
-{ // danie znać innym, że należą do stołu
+void Send_SIG_TABLE(std::set<int> companions, int table_number, int chosen_game)
+{
 }
 
 void Send_SIG_END_REQ()
 {
 
 } // zgłoszenie gotowości do zakończenia gry
-void Broadcast_SIG_GAME_END(set<int> players, int table_number)
+void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
 }
 
