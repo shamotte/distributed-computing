@@ -101,8 +101,8 @@ int main(int argc, char **argv)
 
     const int NITEMS = 4;
 
-    int blockSizes = {1, SEAT_COUNT, 1, 1};
-    MPI_Datatype types = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    int blockSizes[] = {1, SEAT_COUNT, 1, 1};
+    MPI_Datatype types[] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint offset[NITMES];
 
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
         std::cout << "odebrano " << d.priority << " od " << status.MPI_SOURCE << "\n";
     }
 
-    MPI_Type_free(&MPI_PAKIET_T);
+    MPI_Type_free(&my_data);
     MPI_Finalize();
     return 0;
 }
