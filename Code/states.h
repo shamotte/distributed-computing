@@ -53,16 +53,16 @@ public:
     void changeState(State new_state);
 };
 
-class StateIdle : BaseState
+class StateIdle : public BaseState
 {
 public:
     StateIdle();
 };
 
-class StateSeek : BaseState
+class StateSeek : public BaseState
 {
 };
 
-class StatePlay : BaseState
+class StatePlay : public BaseState
 {
 };
