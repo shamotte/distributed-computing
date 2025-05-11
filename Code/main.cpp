@@ -25,13 +25,13 @@ struct Datatype
 
     int players[SEAT_COUNT] = {};
 
-    union value1
+    union
     {
         int table_number;
         int priority;
     };
 
-    union value2
+    union
     {
         int vote;
         int chosen_game;
@@ -70,8 +70,8 @@ void check_thread_support(int provided)
 void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 {
     Datatype d;
-    d.value1.priority = priority;
-    d.value2.vote = vote;
+    d.priority = priority;
+    d.vote = vote;
 
     MPI_Bcast(&d, 1, my_data, rank, MPI_COMM_WORLD)
 }
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        std::cout << "odebrano " << d.value1.priority << " od " << status.MPI_SOURCE << "\n";
+        std::cout << "odebrano " << d.priority << " od " << status.MPI_SOURCE << "\n";
     }
 
     MPI_Type_free(&MPI_PAKIET_T);
