@@ -73,7 +73,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
     d.priority = priority;
     d.vote = vote;
 
-    MPI_Bcast(&d, 1, my_data, RANK, MPI_COMM_WORLD)
+    MPI_Bcast(&d, 1, my_data, RANK, MPI_COMM_WORLD);
 }
 
 void Send_SIG_SIG_TABLE_ACK()
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     int blockSizes[] = {1, SEAT_COUNT, 1, 1};
     MPI_Datatype types[] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
-    MPI_Aint offset[NITMES];
+    MPI_Aint offset[NITEMS];
 
     offset[0] = offsetof(Datatype, type);
     offset[1] = offsetof(Datatype, players);
