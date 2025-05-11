@@ -54,6 +54,8 @@ public:
 
 class StateIdle : BaseState
 {
+public:
+    StateIdle();
 };
 
 class StateSeek : BaseState
