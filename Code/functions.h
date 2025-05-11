@@ -8,7 +8,14 @@
 #include <set>
 #include <sstream>
 
-enum MessageType;
+enum MessageType
+{
+    SIG_TABLE_REQ = 0,
+    SIG_TABLE_ACK,
+    SIG_TABLE,
+    SIG_END_REQ,
+    SIG_GAME_END
+};
 
 struct Datatype;
 

@@ -11,7 +11,14 @@
 #include "config.h"
 #include "functions.h"
 
-enum State;
+enum State
+{
+    STATE_IDLE,
+    STATE_SEEK,
+    STATE_PLAY
+};
+
+class BaseState; // deklarujemy klasę base state
 
 class Context
 {

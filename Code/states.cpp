@@ -12,13 +12,6 @@
 #include "functions.h"
 #include "states.h"
 
-enum State
-{
-    STATE_IDLE,
-    STATE_SEEK,
-    STATE_PLAY
-};
-
 class BaseState
 {
 
