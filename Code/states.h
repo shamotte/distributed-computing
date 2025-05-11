@@ -48,6 +48,7 @@ public:
 
     void EnterState();
     virtual void Logic();
+    virtual void ProcessState();
 
     void changeState(State new_state);
 };
