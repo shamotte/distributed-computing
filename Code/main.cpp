@@ -73,7 +73,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
     d.priority = priority;
     d.vote = vote;
 
-    MPI_Bcast(&d, 1, my_data, rank, MPI_COMM_WORLD)
+    MPI_Bcast(&d, 1, my_data, RANK, MPI_COMM_WORLD)
 }
 
 void Send_SIG_SIG_TABLE_ACK()
