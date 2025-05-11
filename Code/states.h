@@ -24,7 +24,7 @@ class BaseState; // deklarujemy klasę base state
 class Context
 {
 public:
-    BaseState current_state;
+    BaseState *current_state;
     std::mutex state_mutex;
     int priority = 0;
 
