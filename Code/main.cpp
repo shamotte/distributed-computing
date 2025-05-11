@@ -108,8 +108,8 @@ int main(int argc, char **argv)
 
     offset[0] = offsetof(Datatype, type);
     offset[1] = offsetof(Datatype, players);
-    offset[2] = offsetof(Datatype, value1);
-    offset[3] = offsetof(Datatype, value2);
+    offset[2] = offsetof(Datatype, table_number);
+    offset[3] = offsetof(Datatype, vote);
 
     MPI_Type_create_struct(NITEMS, blockSizes, offset, types, &my_data);
     MPI_Type_commit(&my_data);
