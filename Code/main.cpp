@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
     if (RANK == 0)
     {
-        Broadcast_SIG_TABLE_REQ(0, 1);
+        Broadcast_SIG_TABLE_REQ(20, 1);
     }
     else
     {
