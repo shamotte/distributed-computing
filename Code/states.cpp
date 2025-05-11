@@ -21,6 +21,10 @@ void BaseState::Logic()
 {
 }
 
+void BaseState::ProcessState()
+{
+}
+
 void BaseState::changeState(State new_state)
 {
     std::unique_lock(ctx->state_mutex);

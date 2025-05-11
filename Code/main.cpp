@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 
     Context *ctx = new Context();
     ctx->current_state = new StateIdle();
-    ctx->current_state.EnterState();
+    ctx->current_state->EnterState();
     while (true)
     {
         Datatype d;
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 
         std::unique_lock(ctx->state_mutex);
 
-        current_state.ProcessSignal();
+        ctx->current_state->ProcessState();
     }
 
 #pragma region finalization
