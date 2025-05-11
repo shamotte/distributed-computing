@@ -6,29 +6,36 @@
 #include <mutex>
 #include <string>
 #include <set>
+#include <chrono>
 
 #include "config.h"
+#include "functions.h"
+#include "states.h"
+
+enum State
+{
+    STATE_IDLE,
+    STATE_SEEK,
+    STATE_PLAY
+};
 
 class BaseState
 {
+
 public:
-    int priority = 0;
-
-    std::vector<int> queue = {};
-    std::vector<int> table_numbers = {};
-
-    int table_number = 0;
-    std::set<int> companions = {};
-    int end_ready = 0;
-    int chosen_game = 0;
-
-    bool players_acknowledged[PLAYER_NUM] = {};
+    Context *ctx;
 
     virtual void Logic();
     virtual void ProcessSignal();
 
-    void change_state()
+    void EnterState()
     {
+        ctx->logic_thread = std::thread(BaseState::Logic, this);
+    }
+
+    void changeState(State new_state)
+    {
+        std::unique_lock(ctx->state_mutex);
     }
 };
 
@@ -37,6 +44,10 @@ class StateIdle : BaseState
 public:
     void Logic()
     {
+        coutcolor("process zaczął czekanie");
+        std::chrono::seconds time_to_sleep(rand() % 10);
+        std::this_thread::sleep_for(time_to_sleep);
+        changeState(STATE_SEEK);
     }
 
     void ProcessSignal()
