@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &SIZE);
     MPI_Comm_rank(MPI_COMM_WORLD, &RANK);
 
-    if (SIZE == 0)
+    if (RANK == 0)
     {
         Broadcast_SIG_TABLE_REQ(0, 1);
     }
