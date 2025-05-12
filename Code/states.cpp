@@ -65,7 +65,7 @@ void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
     ctx->queue.insert(
         std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
                      { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
-        (QueuePosition){d.pid, d.priority, d.vote});
+        QueuePosition{d.pid, d.priority, d.vote});
 
     ctx->players_acknowledged[d.pid] = true;
 
