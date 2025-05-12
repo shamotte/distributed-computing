@@ -102,7 +102,8 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
                            { return companions.find(p.pid) != companions.end(); }),
             queue.end()); // usuwamy gaczy z kolejki
 
-        ctx->players_acknowledged[player] = false;
+        // HUH?
+        ////ctx->players_acknowledged[player] = false;
     }
 
     std::vector<int> &tables = ctx->table_numbers;
@@ -124,6 +125,15 @@ StateIdle::StateIdle(Context *_ctx)
 
 void StateIdle::Logic()
 {
+
+    ctx->table_number = -1;
+    ctx->companions.clear();
+    ctx->end_ready = 0;
+    ctx->chosen_game = -1;
+
+    // HUH?
+    memset(ctx->players_acknowledged, 0, PLAYER_NUM);
+
     coutcolor("zmienilem stan na IDLE");
     ctx->priority = global_lamport;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
