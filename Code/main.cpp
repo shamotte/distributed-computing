@@ -26,7 +26,7 @@ void coutcolor(Args &&...args)
     std::cout << "\033[0;" << (31 + RANK % 7) << "m"
               << "["
               << global_lamport
-              << "\t]"
+              << "\t]\t"
               << oss.str()
               << "\033[0m\n";
 }
@@ -60,11 +60,13 @@ void check_thread_support(int provided)
 
 void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 {
+    global_lamport++;
     Datatype d;
     d.priority = priority;
     d.vote = vote;
     d.pid = RANK;
     d.type = SIG_TABLE_REQ;
+    d.lamport = global_lamport;
 
     for (int i = 0; i < SIZE; i++)
     {
@@ -75,18 +77,22 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 
 void Send_SIG_SIG_TABLE_ACK(int dest)
 {
+    global_lamport++;
 }
 
 void Send_SIG_TABLE(std::set<int> companions, int table_number, int chosen_game)
 {
+    global_lamport++;
 }
 
 void Send_SIG_END_REQ()
 {
+    global_lamport++;
 
 } // zgłoszenie gotowości do zakończenia gry
 void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
+    global_lamport++;
 }
 
 void SignalProcesingLoop(Context *ctx)
@@ -97,7 +103,8 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         coutcolor("otrzymano  ", d.priority, "od", d.pid, " o typie ", d.type);
-        // obieranie sygbnałów
+
+        global_lamport = std::max(global_lamport, d.lamport) + 1;
 
         std::unique_lock(ctx->state_mutex);
 

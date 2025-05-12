@@ -24,7 +24,7 @@ void coutcolor(Args &&...args)
     std::cout << "\033[0;" << (31 + RANK % 7) << "m"
               << "["
               << global_lamport
-              << "\t]"
+              << "\t]\t"
               << oss.str()
               << "\033[0m\n";
 }
