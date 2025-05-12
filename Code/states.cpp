@@ -133,9 +133,6 @@ void StateIdle::Logic()
     ctx->end_ready = 0;
     ctx->chosen_game = -1;
 
-    // HUH?
-    memset(ctx->players_acknowledged, 0, PLAYER_NUM);
-
     coutcolor("zmienilem stan na IDLE");
     ctx->priority = global_lamport;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
@@ -279,6 +276,9 @@ void StatePlay::Logic()
         coutcolor("GAME OVER, GO HOME.");
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
+
+    // HUH?
+    memset(ctx->players_acknowledged, 0, PLAYER_NUM);
 
     ctx->next_state = STATE_IDLE;
     return;
