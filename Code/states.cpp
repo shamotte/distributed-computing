@@ -170,9 +170,12 @@ void StateSeek::Logic()
         auto &queue = ctx->queue;
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT) {
             int table_index = pos / SEAT_COUNT;
+            coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
-            bool is_last = RANK == queue[table_index * SEAT_COUNT + SEAT_COUNT - 1].pid;
-            coutcolor(RANK, "jestem ostatni? (", queue[table_index * SEAT_COUNT + SEAT_COUNT - 1].pid, ")", is_last);
+            int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
+
+            bool is_last = RANK == queue[last_player_index].pid;
+            coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
             if (is_last) {
 
                 // Obierz stół
