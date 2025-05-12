@@ -11,7 +11,7 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
-
+extern int RANK, SIZE;
 template <typename... Args>
 void coutcolor(Args &&...args)
 {

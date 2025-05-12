@@ -11,5 +11,3 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
-
-extern int RANK, SIZE;
