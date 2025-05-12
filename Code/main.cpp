@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     states[STATE_SEEK] = new StateSeek();
     states[STATE_PLAY] = new StatePlay();
 
-    ctx->current_state = states[StateIdle];
+    ctx->current_state = states[STATE_IDLE];
 
     std::thread signalProcessor(SignalProcesingLoop, ctx);
     std::thread logicThread(ContinousLogic, ctx);
