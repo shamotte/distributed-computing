@@ -76,4 +76,19 @@ void Send_SIG_END_REQ(int dest)
 void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
     global_lamport++;
+
+	Datatype d;
+	d.type = SIG_GAME_END;
+	d.lamport = global_lamport;
+    d.pid = RANK;
+
+	std::copy(players.begin(), players.end(), d.players);
+
+	d.table_number = table_number;
+
+	for (int i = 0; i < SIZE; i++)
+    {
+
+        MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
+    }
 }

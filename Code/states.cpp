@@ -85,6 +85,7 @@ void BaseState::ProcessSIG_TABLE(Datatype &d)
 void BaseState::ProcessSIG_END_REQ(Datatype &d)
 {
     ctx->end_ready++;
+    ctx->cv_game_end_req.notify_all();
 }
 
 void BaseState::ProcessSIG_GAME_END(Datatype &d)
@@ -261,6 +262,11 @@ void StatePlay::Logic()
     );
 
     coutcolor("Gra zakończona!");
+
+    if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end())) {
+        coutcolor("GAME OVER, GO HOME.");
+        Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
+    }
 
     ctx->next_state = STATE_IDLE;
     return;
