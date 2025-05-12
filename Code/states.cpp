@@ -11,6 +11,7 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
+
 extern int RANK, SIZE;
 template <typename... Args>
 void coutcolor(Args &&...args)
@@ -108,6 +109,7 @@ void StatePlay::Logic()
 BaseState *Context::GetNextState()
 {
     return States[next_state];
+    coutcolor("next state is", next_state);
 }
 
 #pragma endregion
