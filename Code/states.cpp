@@ -171,8 +171,8 @@ void StateSeek::Logic()
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT) {
             int table_index = pos / SEAT_COUNT;
 
-            bool is_last = RANK == queue[table_index + SEAT_COUNT - 1].pid;
-            coutcolor(RANK, "jestem ostatni? (", queue[table_index + SEAT_COUNT - 1].pid, ")", is_last);
+            bool is_last = RANK == queue[table_index * SEAT_COUNT + SEAT_COUNT - 1].pid;
+            coutcolor(RANK, "jestem ostatni? (", queue[table_index * SEAT_COUNT + SEAT_COUNT - 1].pid, ")", is_last);
             if (is_last) {
 
                 // Obierz stół
