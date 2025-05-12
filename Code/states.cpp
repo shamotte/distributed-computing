@@ -81,6 +81,16 @@ void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
 
 void BaseState::ProcessSIG_TABLE(Datatype &d)
 {
+    ctx->table_number = d.table_number;
+    ctx->chosen_game = d.chosen_game;
+
+    ctx->companions.clear();
+    ctx->companions = std::set<int>(
+        d.players,
+        d.players + SEAT_COUNT);
+
+    ctx->next_state = STATE_PLAY;
+    ctx->cv_seek_wake.notify_all();
 }
 
 void BaseState::ProcessSIG_END_REQ(Datatype &d)
@@ -110,7 +120,7 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
     std::remove_if(tables.begin(), tables.end(), [&d](int t)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 
-    ctx->cv_game_end.notify_all();
+    ctx->cv_seek_wake.notify_all();
 }
 
 #pragma endregion
@@ -221,7 +231,12 @@ void StateSeek::Logic()
 
         // Nie znaleziono stołu
         coutcolor(RANK, " nie znaleziiono stołu");
-        ctx->cv_game_end.wait(lock);
+        ctx->cv_seek_wake.wait(lock);
+
+        // Zakończ stan jeśli ustawiono na PLAY
+        if (ctx->next_state == STATE_PLAY) {
+            return;
+        }
     }
 }
 

@@ -83,6 +83,19 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
     global_lamport++;
+
+    Datatype d;
+    d.type = SIG_TABLE;
+
+    std::copy(companions.begin(), companions.end(), d.players);
+
+    d.table_number = table_number;
+    d.chosen_game = chosen_game;
+
+    d.lamport = global_lamport;
+    d.pid = RANK;
+
+    MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
 }
 
 void Send_SIG_END_REQ()
