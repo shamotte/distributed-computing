@@ -33,6 +33,7 @@ void BaseState::ProcessState(Datatype &d)
     case SIG_END_REQ:
 
     case SIG_GAME_END:
+        break;
     }
 }
 
