@@ -89,7 +89,8 @@ StateIdle::StateIdle(Context *ctx)
 void StateIdle::Logic()
 {
     coutcolor("zmienilem stan na IDLE");
-    ctx->priority = ctx->lamport;
+    ctx->priority = ctx->lamport + 1;
+    ctx->lamport++;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
     ctx->next_state = STATE_SEEK;
 }
@@ -126,7 +127,7 @@ void StatePlay::Logic()
 #pragma region Utils
 BaseState *Context::GetNextState()
 {
-    coutcolor("next state is", next_state);
+    coutcolor("next state is", priority);
     return States[next_state];
 }
 
