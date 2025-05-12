@@ -66,7 +66,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
     }
 }
 
-void Send_SIG_SIG_TABLE_ACK()
+void Send_SIG_SIG_TABLE_ACK(int dest)
 {
 }
 
