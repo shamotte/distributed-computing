@@ -81,8 +81,9 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
 
 #pragma region Idle
 
-StateIdle::StateIdle()
+StateIdle::StateIdle(Context *ctx)
 {
+    ctx = ctx;
 }
 
 void StateIdle::Logic()
@@ -95,15 +96,32 @@ void StateIdle::Logic()
 
 #pragma endregion
 
+#pragma region seek
+StateSeek::StateSeek(Context *ctx)
+{
+    ctx = ctx;
+}
+
 void StateSeek::Logic()
 {
     coutcolor("zmienilem stan na SEEK");
+}
+
+#pragma endregion
+
+#pragma region Play
+
+StatePlay::StatePlay(Context *ctx)
+{
+    ctx = ctx;
 }
 
 void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
 }
+
+#pragma endregion
 
 #pragma region Utils
 BaseState *Context::GetNextState()
