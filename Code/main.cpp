@@ -117,7 +117,7 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
         global_lamport = std::max(global_lamport, d.lamport) + 1;
-        coutcolor("otrzymano  ", d.priority, "od", d.pid, " o typie ", StateNames[d.type]);
+        coutcolor("otrzymano  ", d.priority, "od", d.pid, " o typie ", MessageNames[d.type]);
 
         std::unique_lock(ctx->state_mutex);
 

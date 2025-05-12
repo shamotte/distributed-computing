@@ -18,6 +18,13 @@ enum MessageType
     SIG_END_REQ,
     SIG_GAME_END
 };
+const std::string MessageNames[] = {
+    "SIG_TABLE_REQ",
+    "SIG_TABLE_ACK",
+    "SIG_TABLE",
+    "SIG_END_REQ",
+    "SIG_GAME_END"
+};
 
 struct Datatype
 {
