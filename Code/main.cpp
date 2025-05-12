@@ -153,8 +153,14 @@ int main(int argc, char **argv)
 #pragma endregion
 
     Context *ctx = new Context();
-    ctx->current_state = new StateIdle();
-    ctx->current_state->EnterState();
+
+    std<State, BaseState *> &states = ctx->States;
+
+    states[STATE_IDLE] = new StateIdle();
+    states[STATE_SEEK] = new StateSeek();
+    states[STATE_PLAY] = new StatePlay();
+
+    ctx->current_state = states[StateIdle];
 
     std::thread signalProcessor(SignalProcesingLoop, ctx);
     std::thread logicThread(ContinousLogic, ctx);
