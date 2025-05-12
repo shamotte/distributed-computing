@@ -21,6 +21,12 @@ enum State
     STATE_PLAY,
     STATE_STAY
 };
+const std::string StateNames[] = {
+    "IDLE",
+    "SEEK",
+    "PLAY",
+    "STAY"
+};
 
 struct QueuePosition
 {
