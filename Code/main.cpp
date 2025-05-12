@@ -60,6 +60,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
     d.priority = priority;
     d.vote = vote;
     d.pid = RANK;
+    d.type = SIG_TABLE_REQ;
 
     for (int i = 0; i < SIZE; i++)
     {
