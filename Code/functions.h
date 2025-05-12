@@ -53,6 +53,3 @@ void Send_SIG_TABLE(std::set<int> companions, int table_number, int chosen_game)
 void Send_SIG_END_REQ();
 
 void Broadcast_SIG_GAME_END(std::set<int> players, int table_number);
-
-template <typename... Args>
-void coutcolor(Args &&...args);
