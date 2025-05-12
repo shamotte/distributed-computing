@@ -49,16 +49,6 @@ struct Datatype
 
 void check_thread_support(int provided);
 
-void Broadcast_SIG_TABLE_REQ(int priority, int vote);
-
-void Send_SIG_SIG_TABLE_ACK(int dest);
-
-void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game);
-
-void Send_SIG_END_REQ(int dest);
-
-void Broadcast_SIG_GAME_END(std::set<int> players, int table_number);
-
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
 

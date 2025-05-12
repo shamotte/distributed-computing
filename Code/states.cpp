@@ -11,6 +11,8 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
+#include "signals.h"
+
 #include <algorithm>
 
 extern int RANK, SIZE;

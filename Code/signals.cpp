@@ -11,6 +11,7 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
+#include "signals.h"
 
 #include <mpi.h>
 
