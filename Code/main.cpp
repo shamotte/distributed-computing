@@ -59,9 +59,11 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
     Datatype d;
     d.priority = priority;
     d.vote = vote;
+    d.pid = RANK;
 
     for (int i = 0; i < SIZE; i++)
     {
+
         MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
     }
 }
