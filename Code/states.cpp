@@ -108,8 +108,8 @@ void StatePlay::Logic()
 #pragma region Utils
 BaseState *Context::GetNextState()
 {
-    return States[next_state];
     coutcolor("next state is", next_state);
+    return States[next_state];
 }
 
 #pragma endregion
