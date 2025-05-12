@@ -174,6 +174,9 @@ void StateSeek::Logic()
             if (RANK == queue[table_index + SEAT_COUNT - 1].pid) {
 
                 // Obierz stół
+                for (auto tid: ctx->table_numbers) {
+                    coutcolor("stół", tid);
+                }
                 ctx->table_number = ctx->table_numbers[table_index];
 
                 // Wykryj współgraczy
@@ -207,6 +210,7 @@ void StateSeek::Logic()
         }
 
         // Nie znaleziono stołu
+        coutcolor(RANK, " nie znaleziiono stołu");
         ctx->cv_game_end.wait(lock);
     }
 }
