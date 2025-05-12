@@ -121,7 +121,7 @@ void SignalProcesingLoop(Context *ctx)
 
         std::unique_lock(ctx->state_mutex);
 
-        ctx->current_state->ProcessState(d);
+        ctx->current_state->ProcessSignal(d);
     }
 }
 

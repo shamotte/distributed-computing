@@ -35,7 +35,7 @@ void BaseState::Logic()
 {
 }
 
-void BaseState::ProcessState(Datatype &d)
+void BaseState::ProcessSignal(Datatype &d)
 {
 
     switch (d.type)
@@ -48,7 +48,7 @@ void BaseState::ProcessState(Datatype &d)
         ProcessSIG_SIG_TABLE_ACK(d);
         break;
     case SIG_TABLE:
-        ProcessSIG_END_REQ(d);
+        ProcessSIG_TABLE(d);
         break;
     case SIG_END_REQ:
         ProcessSIG_END_REQ(d);

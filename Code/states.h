@@ -68,7 +68,7 @@ public:
     Context *ctx;
 
     virtual void Logic();
-    virtual void ProcessState(Datatype &d);
+    virtual void ProcessSignal(Datatype &d);
 
     virtual void ProcessSIG_TABLE_REQ(Datatype &d);
     virtual void ProcessSIG_SIG_TABLE_ACK(Datatype &d);
