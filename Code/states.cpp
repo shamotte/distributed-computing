@@ -64,12 +64,14 @@ void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
 
     ctx->players_acknowledged[d.pid] = true;
 
+    ctx->cv_seek.notify_all();
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
 {
     ctx->players_acknowledged[d.pid] = true;
+    ctx->cv_seek.notify_all();
 }
 
 void BaseState::ProcessSIG_TABLE(Datatype &d)
