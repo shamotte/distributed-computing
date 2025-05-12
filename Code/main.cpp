@@ -16,7 +16,7 @@
 
 MPI_Datatype my_data;
 
-int global_lamport;
+unsigned int global_lamport;
 int RANK, SIZE;
 template <typename... Args>
 void coutcolor(Args &&...args)

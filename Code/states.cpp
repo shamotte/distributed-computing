@@ -14,7 +14,7 @@
 #include <algorithm>
 
 extern int RANK, SIZE;
-extern int global_lamport;
+extern unsigned int global_lamport;
 
 template <typename... Args>
 void coutcolor(Args &&...args)
