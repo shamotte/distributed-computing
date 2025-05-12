@@ -17,7 +17,6 @@
 MPI_Datatype my_data;
 
 int RANK, SIZE;
-template <typename... Args>
 
 void check_thread_support(int provided)
 {
