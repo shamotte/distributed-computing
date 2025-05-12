@@ -56,10 +56,20 @@ void BaseState::ProcessState(Datatype &d)
 
 void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
 {
+    std::vector<QueuePosition> &queue = ctx->queue;
+    ctx->queue.insert(
+        std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
+                     { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
+        (QueuePosition){d.pid, d.priority, d.vote});
+
+    ctx->players_acknowledged[d.pid] = true;
+
+    Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
 {
+    ctx->players_acknowledged[d.pid] = true;
 }
 
 void BaseState::ProcessSIG_TABLE(Datatype &d)
@@ -68,6 +78,7 @@ void BaseState::ProcessSIG_TABLE(Datatype &d)
 
 void BaseState::ProcessSIG_END_REQ(Datatype &d)
 {
+    ctx->end_ready++;
 }
 
 void BaseState::ProcessSIG_GAME_END(Datatype &d)

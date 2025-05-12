@@ -122,12 +122,13 @@ int main(int argc, char **argv)
 
     const int NITEMS = 5;
 
-    int blockSizes[] = {1, 1, SEAT_COUNT, 1, 1};
-    MPI_Datatype types[] = {MPI_UNSIGNED, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    int blockSizes[] = {1, 1, 1, SEAT_COUNT, 1, 1};
+    MPI_Datatype types[] = {MPI_UNSIGNED, MPI_INT, MPI_UNSIGNED, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint offset[NITEMS] = {
         offsetof(Datatype, lamport),
         offsetof(Datatype, type),
+        offsetof(Datatype, pid),
         offsetof(Datatype, players),
         offsetof(Datatype, table_number),
         offsetof(Datatype, vote)};
