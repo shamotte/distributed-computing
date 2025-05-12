@@ -156,9 +156,9 @@ int main(int argc, char **argv)
 
     std::map<State, BaseState *> &states = ctx->States;
 
-    states[STATE_IDLE] = new StateIdle();
-    states[STATE_SEEK] = new StateSeek();
-    states[STATE_PLAY] = new StatePlay();
+    states[STATE_IDLE] = new StateIdle(ctx);
+    states[STATE_SEEK] = new StateSeek(ctx);
+    states[STATE_PLAY] = new StatePlay(ctx);
 
     ctx->current_state = states[STATE_IDLE];
 

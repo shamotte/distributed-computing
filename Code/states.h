@@ -64,7 +64,7 @@ public:
 class StateIdle : public BaseState
 {
 public:
-    StateIdle();
+    StateIdle(Context *ctx);
 
     void Logic();
 };
@@ -72,11 +72,14 @@ public:
 class StateSeek : public BaseState
 {
 public:
+    StateSeek(Context *ctx);
+
     void Logic();
 };
 
 class StatePlay : public BaseState
 {
 public:
+    StatePlay(Context *ctx);
     void Logic();
 };
