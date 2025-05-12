@@ -141,7 +141,15 @@ void StateSeek::Logic()
     std::unique_lock lock(x);
 
     ctx->cv_seek.wait(lock, [this]()
-                      { return std::all_of(this->ctx->players_acknowledged,
+                      { 
+                        std::stringstream ss;
+                        for(bool b : ctx->players_acknowledged)
+                        {
+                            ss<<b<<" ";
+                        }
+                        coutcolor(ss.str());
+
+                        return std::all_of(this->ctx->players_acknowledged,
                                            this->ctx->players_acknowledged + PLAYER_NUM,
                                            [](bool b)
                                            { return b; }); });
