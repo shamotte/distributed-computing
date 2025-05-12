@@ -116,8 +116,7 @@ StateIdle::StateIdle(Context *_ctx)
 void StateIdle::Logic()
 {
     coutcolor("zmienilem stan na IDLE");
-    ctx->priority = ctx->lamport + 1;
-    ctx->lamport++;
+    ctx->priority = ctx->lamport;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
     ctx->next_state = STATE_SEEK;
     return;
@@ -134,6 +133,20 @@ StateSeek::StateSeek(Context *_ctx)
 void StateSeek::Logic()
 {
     coutcolor("zmienilem stan na SEEK");
+
+    Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
+    std::mutex x;
+    std::unique_lock lock(x);
+
+    ctx->cv_seek.wait(lock, [this]()
+                      { return std::all_of(this->ctx->players_acknowledged,
+                                           this->ctx->players_acknowledged + PLAYER_NUM,
+                                           [](bool b)
+                                           { return b; }); });
+
+    coutcolor(RANK, " wlaskie zakonczyl czekanie");
+    while (true)
+        ;
 }
 
 #pragma endregion

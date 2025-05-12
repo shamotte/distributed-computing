@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "functions.h"
+#include <condition_variable>
 
 enum State
 {
@@ -39,6 +40,7 @@ public:
     std::mutex state_mutex;
     int priority = 0;
     int lamport = 0;
+    std::condition_variable cv_seek;
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};

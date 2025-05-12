@@ -154,6 +154,8 @@ int main(int argc, char **argv)
 
 #pragma endregion
 
+    srand(time(NULL));
+
     Context *ctx = new Context();
 
     std::map<State, BaseState *> &states = ctx->States;
