@@ -7,6 +7,7 @@
 #include <string>
 #include <set>
 #include <chrono>
+#include <stdlib.h>
 
 #include "config.h"
 #include "functions.h"
