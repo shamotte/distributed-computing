@@ -23,7 +23,7 @@ enum State
 
 struct QueuePosition
 {
-    int pid;
+    unsigned int pid;
     int priority;
     int vote;
 };

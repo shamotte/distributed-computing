@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
 
-    const int NITEMS = 5;
+    const int NITEMS = 6;
 
     int blockSizes[] = {1, 1, 1, SEAT_COUNT, 1, 1};
     MPI_Datatype types[] = {MPI_UNSIGNED, MPI_INT, MPI_UNSIGNED, MPI_INT, MPI_INT, MPI_INT};
