@@ -16,6 +16,21 @@
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
 
+
+const std::string PlayerNames[] = {
+    "👴 Eustachy",
+    "Telimena",
+    "Mieczysław",
+    "Eugenia",
+    "Juliusz",
+    "Eleonora",
+    "Edek",
+    "Daniel J. D'Arby",
+    "Michał",
+    "Hiacynta",
+    "Jack Black",
+};
+
 template <typename... Args>
 void coutcolor(Args &&...args)
 {
@@ -24,7 +39,9 @@ void coutcolor(Args &&...args)
     std::cout << "\033[0;" << (31 + RANK % 7) << "m"
               << "["
               << global_lamport
-              << "\t]\t"
+              << "\t] "
+              << PlayerNames[RANK % (sizeof(str)/sizeof(*str))]
+              << "\t"
               << oss.str()
               << "\033[0m\n";
 }
