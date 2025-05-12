@@ -167,6 +167,12 @@ int main(int argc, char **argv)
 
     ctx->current_state = states[STATE_IDLE];
 
+    ctx->table_numbers;
+    for (int i = 0; i < TABLE_NUM; i++)
+    {
+        ctx->table_numbers.push_back(i);
+    }
+
     std::thread signalProcessor(SignalProcesingLoop, ctx);
     std::thread logicThread(ContinousLogic, ctx);
 
