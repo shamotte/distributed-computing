@@ -91,7 +91,7 @@ void SignalProcesingLoop(Context *ctx)
         Datatype d;
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        coutcolor("otrzymano od ", d.priority, "od", status.MPI_SOURCE);
+        coutcolor("otrzymano  ", d.priority, "od", d.pid, " o typie ", d.type);
         // obieranie sygbnałów
 
         std::unique_lock(ctx->state_mutex);
@@ -140,19 +140,6 @@ int main(int argc, char **argv)
 
     MPI_Comm_size(MPI_COMM_WORLD, &SIZE);
     MPI_Comm_rank(MPI_COMM_WORLD, &RANK);
-
-    if (RANK == 0)
-    {
-        Broadcast_SIG_TABLE_REQ(20, 1);
-    }
-    else
-    {
-        Datatype d;
-        MPI_Status status;
-        MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
-        coutcolor("otrzymano od ", status.MPI_SOURCE, "od", d.priority);
-    }
 
 #pragma endregion
 
