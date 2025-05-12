@@ -93,7 +93,7 @@ void StateIdle::Logic()
     ctx->lamport++;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
     ctx->next_state = STATE_SEEK;
-    coutcolor("aaaa", ctx->next_state);
+    coutcolor("aaaa", ctx->next_state, " ", ctx->lamport);
 }
 
 #pragma endregion
