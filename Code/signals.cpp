@@ -41,6 +41,13 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 void Send_SIG_SIG_TABLE_ACK(int dest)
 {
     global_lamport++;
+
+	Datatype d;
+    d.type = SIG_TABLE_ACK;
+    d.lamport = global_lamport;
+    d.pid = RANK;
+
+	MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
 }
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
