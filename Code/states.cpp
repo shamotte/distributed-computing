@@ -29,6 +29,11 @@ const std::string PlayerNames[] = {
     "Michał",
     "Hiacynta",
     "Jack Black",
+    "Yumeko",
+    "Freddy Fazbear",
+    "Gerwazy",
+    "Laweta",
+    "Leonidas",
 };
 
 template <typename... Args>
@@ -40,7 +45,7 @@ void coutcolor(Args &&...args)
               << "["
               << global_lamport
               << "\t] "
-              << PlayerNames[RANK % (sizeof(str)/sizeof(*str))]
+              << PlayerNames[RANK % (sizeof(PlayerNames)/sizeof(*PlayerNames))]
               << "\t"
               << oss.str()
               << "\033[0m\n";
