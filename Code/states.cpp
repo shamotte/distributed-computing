@@ -257,6 +257,10 @@ StatePlay::StatePlay(Context *_ctx)
 void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
+
+    // HUH?
+    memset(ctx->players_acknowledged, 0, PLAYER_NUM);
+
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
 
     for (auto comp: ctx->companions) {
@@ -276,9 +280,6 @@ void StatePlay::Logic()
         coutcolor("GAME OVER, GO HOME.");
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
-
-    // HUH?
-    memset(ctx->players_acknowledged, 0, PLAYER_NUM);
 
     ctx->next_state = STATE_IDLE;
     return;
