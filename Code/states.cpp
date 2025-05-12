@@ -109,6 +109,8 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
 
     std::remove_if(tables.begin(), tables.end(), [&d](int t)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
+
+    ctx->cv_game_end.notify_all();
 }
 
 #pragma endregion
@@ -142,26 +144,71 @@ void StateSeek::Logic()
     coutcolor("zmienilem stan na SEEK");
 
     Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
+
     std::mutex x;
-    std::unique_lock lock(x);
+        std::unique_lock lock(x);
 
-    ctx->cv_seek.wait(lock, [this]()
-                      { 
-                        std::stringstream ss;
-                        for(bool b : ctx->players_acknowledged)
-                        {
-                            ss<<b<<" ";
-                        }
-                        coutcolor(ss.str());
+        ctx->cv_seek.wait(lock, [this]()
+                        { 
+                            std::stringstream ss;
+                            for(bool b : ctx->players_acknowledged)
+                            {
+                                ss<<b<<" ";
+                            }
+                            coutcolor(ss.str());
 
-                        return std::all_of(this->ctx->players_acknowledged,
-                                           this->ctx->players_acknowledged + PLAYER_NUM,
-                                           [](bool b)
-                                           { return b; }); });
+                            return std::all_of(this->ctx->players_acknowledged,
+                                            this->ctx->players_acknowledged + PLAYER_NUM,
+                                            [](bool b)
+                                            { return b; }); });
 
-    coutcolor(RANK, " wlaskie zakonczyl czekanie");
-    while (true)
-        ;
+        coutcolor(RANK, " wlaskie zakonczyl czekanie");
+
+    while (true) {
+
+
+        auto &queue = ctx->queue;
+        for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT) {
+            int table_index = pos / SEAT_COUNT;
+
+            if (RANK == queue[table_index + SEAT_COUNT - 1].pid) {
+
+                // Obierz stół
+                ctx->table_number = ctx->table_numbers[table_index];
+
+                // Wykryj współgraczy
+                ctx->companions.clear();
+                ctx->companions = std::set<int>(
+                queue.begin() + table_index * SEAT_COUNT,
+                    queue.begin() + table_index * SEAT_COUNT + SEAT_COUNT
+                );
+
+                // Zlicz głosy
+                int votes[SEAT_COUNT] = {};
+                for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++) {
+                    votes[queue[i].vote]++;
+                }
+
+                // Indeks o największej liczbie głosów
+                int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
+                ctx->chosen_game = chosen_game;
+
+                // Wysłanie SIG_TABLE
+                for (auto comp : ctx->companions) {
+                    if (comp != RANK) {
+                        Send_SIG_TABLE(comp, ctx->companions, ctx->table_number, chosen_game);
+                    }
+                }
+
+                // Własne przejście do stanu gry
+                ctx->next_state = STATE_PLAY;
+                return;
+            }
+        }
+
+        // Nie znaleziono stołu
+        ctx->cv_game_end.wait(lock);
+    }
 }
 
 #pragma endregion

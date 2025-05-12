@@ -40,6 +40,8 @@ public:
     std::mutex state_mutex;
     int priority = 0;
     std::condition_variable cv_seek;
+    std::condition_variable cv_game_end;
+    std::condition_variable cv_game_end_req;
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
