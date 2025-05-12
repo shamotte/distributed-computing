@@ -16,6 +16,7 @@
 
 MPI_Datatype my_data;
 
+int global_lamport;
 int RANK, SIZE;
 template <typename... Args>
 void coutcolor(Args &&...args)
@@ -23,6 +24,9 @@ void coutcolor(Args &&...args)
     std::ostringstream oss;
     (oss << ... << args); // składnia fold expression (C++17)
     std::cout << "\033[0;" << (31 + RANK % 7) << "m"
+              << "["
+              << global_lamport
+              << "\t]"
               << oss.str()
               << "\033[0m\n";
 }

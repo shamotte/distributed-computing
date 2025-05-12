@@ -14,12 +14,17 @@
 #include <algorithm>
 
 extern int RANK, SIZE;
+extern int global_lamport;
+
 template <typename... Args>
 void coutcolor(Args &&...args)
 {
     std::ostringstream oss;
     (oss << ... << args); // składnia fold expression (C++17)
     std::cout << "\033[0;" << (31 + RANK % 7) << "m"
+              << "["
+              << global_lamport
+              << "\t]"
               << oss.str()
               << "\033[0m\n";
 }
@@ -118,7 +123,7 @@ StateIdle::StateIdle(Context *_ctx)
 void StateIdle::Logic()
 {
     coutcolor("zmienilem stan na IDLE");
-    ctx->priority = ctx->lamport;
+    ctx->priority = global_lamport;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
     ctx->next_state = STATE_SEEK;
     return;

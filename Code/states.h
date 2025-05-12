@@ -39,7 +39,6 @@ public:
     std::map<State, BaseState *> States;
     std::mutex state_mutex;
     int priority = 0;
-    int lamport = 0;
     std::condition_variable cv_seek;
 
     std::vector<QueuePosition> queue = {};
