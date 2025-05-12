@@ -80,7 +80,7 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
     global_lamport++;
 }
 
-void Send_SIG_TABLE(std::set<int> companions, int table_number, int chosen_game)
+void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
     global_lamport++;
 }
