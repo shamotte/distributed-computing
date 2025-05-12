@@ -12,26 +12,6 @@
 #include "functions.h"
 #include "states.h"
 
-struct Datatype
-{
-    unsigned int lamport;
-    MessageType type;
-
-    int players[SEAT_COUNT] = {};
-
-    union
-    {
-        int table_number;
-        int priority;
-    };
-
-    union
-    {
-        int vote;
-        int chosen_game;
-    };
-};
-
 #pragma region BaseState
 
 void BaseState::Logic()

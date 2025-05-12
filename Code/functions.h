@@ -19,7 +19,25 @@ enum MessageType
     SIG_GAME_END
 };
 
-struct Datatype;
+struct Datatype
+{
+    unsigned int lamport;
+    MessageType type;
+
+    int players[SEAT_COUNT] = {};
+
+    union
+    {
+        int table_number;
+        int priority;
+    };
+
+    union
+    {
+        int vote;
+        int chosen_game;
+    };
+};
 
 template <typename... Args>
 void coutcolor(Args &&...args);
