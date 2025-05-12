@@ -178,10 +178,10 @@ void StateSeek::Logic()
 
                 // Wykryj współgraczy
                 ctx->companions.clear();
-                ctx->companions = std::set<int>(
-                queue.begin() + table_index * SEAT_COUNT,
+                /*ctx->companions = std::set<int>(
+                    queue.begin() + table_index * SEAT_COUNT,
                     queue.begin() + table_index * SEAT_COUNT + SEAT_COUNT
-                );
+                );*/
 
                 // Zlicz głosy
                 int votes[SEAT_COUNT] = {};
@@ -223,6 +223,7 @@ StatePlay::StatePlay(Context *_ctx)
 void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
+    std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
 }
 
 #pragma endregion
