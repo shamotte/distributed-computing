@@ -187,6 +187,7 @@ void StateSeek::Logic()
 
             coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
+            int first_player_index = table_index * SEAT_COUNT;
             int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
 
             bool is_last = RANK == queue[last_player_index].pid;
@@ -201,10 +202,9 @@ void StateSeek::Logic()
 
                 // Wykryj współgraczy
                 ctx->companions.clear();
-                /*ctx->companions = std::set<int>(
-                    queue.begin() + table_index * SEAT_COUNT,
-                    queue.begin() + table_index * SEAT_COUNT + SEAT_COUNT
-                );*/
+                for (int i = first_player_index; i <= last_player_index; i++) {
+                    ctx->companions.insert(queue[i].pid);
+                }
 
                 // Zlicz głosy
                 int votes[SEAT_COUNT] = {};
