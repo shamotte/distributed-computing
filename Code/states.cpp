@@ -218,6 +218,12 @@ void StateSeek::Logic()
 
         // Nie znaleziono stołu
         coutcolor(RANK, " nie znaleziiono stołu");
+
+        // Zakończ stan jeśli ustawiono na PLAY - failsafe
+        if (ctx->next_state == STATE_PLAY) {
+            return;
+        }
+
         ctx->cv_seek_wake.wait(lock);
 
         // Zakończ stan jeśli ustawiono na PLAY
