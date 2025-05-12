@@ -154,7 +154,7 @@ int main(int argc, char **argv)
 
     Context *ctx = new Context();
 
-    std<State, BaseState *> &states = ctx->States;
+    std::set<State, BaseState *> &states = ctx->States;
 
     states[STATE_IDLE] = new StateIdle();
     states[STATE_SEEK] = new StateSeek();
