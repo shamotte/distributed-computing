@@ -17,7 +17,8 @@ enum State
 {
     STATE_IDLE,
     STATE_SEEK,
-    STATE_PLAY
+    STATE_PLAY,
+    STATE_STAY
 };
 
 class BaseState; // deklarujemy klasę base state
@@ -26,9 +27,11 @@ class Context
 {
 public:
     BaseState *current_state;
+    State next_state;
     std::map<State, BaseState *> States;
     std::mutex state_mutex;
     int priority = 0;
+    int lamport = 0;
 
     std::vector<int> queue = {};
     std::vector<int> table_numbers = {};
@@ -40,29 +43,40 @@ public:
     bool players_acknowledged[PLAYER_NUM] = {};
 
     std::thread logic_thread;
+
+    BaseState *GetNextState();
 };
 class BaseState
 {
 public:
     Context *ctx;
 
-    void EnterState();
     virtual void Logic();
-    virtual void ProcessState();
+    virtual void ProcessState(Datatype &d);
 
-    void changeState(State new_state);
+    virtual void ProcessSIG_TABLE_REQ(Datatype &d);
+    virtual void ProcessSIG_SIG_TABLE_ACK(Datatype &d);
+    virtual void ProcessSIG_TABLE(Datatype &d);
+    virtual void ProcessSIG_END_REQ(Datatype &d);
+    virtual void ProcessSIG_GAME_END(Datatype &d);
 };
 
 class StateIdle : public BaseState
 {
 public:
     StateIdle();
+
+    void Logic();
 };
 
 class StateSeek : public BaseState
 {
+public:
+    void Logic();
 };
 
 class StatePlay : public BaseState
 {
+public:
+    void Logic();
 };

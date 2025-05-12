@@ -12,22 +12,111 @@
 #include "functions.h"
 #include "states.h"
 
-void BaseState::EnterState()
+struct Datatype
 {
-    ctx->logic_thread = std::thread(&BaseState::Logic, this);
-}
+    unsigned int lamport;
+    MessageType type;
+
+    int players[SEAT_COUNT] = {};
+
+    union
+    {
+        int table_number;
+        int priority;
+    };
+
+    union
+    {
+        int vote;
+        int chosen_game;
+    };
+};
+
+#pragma region BaseState
 
 void BaseState::Logic()
 {
 }
 
-void BaseState::ProcessState()
+void BaseState::ProcessState(Datatype &d)
+{
+
+    switch (d.type)
+    {
+
+    case SIG_TABLE_REQ:
+
+    case SIG_TABLE_ACK:
+
+    case SIG_TABLE:
+
+    case SIG_END_REQ:
+
+    case SIG_GAME_END:
+    }
+}
+
+void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
+{
+
+    // signal SIG_TABLE_REQ(priority: int, vote: int) {
+    //     queue.insert(
+    //         queue.find(pririty, signal.pid) // Znajdź miejsce w kolejce na bazie priorytetu, ewentualnie pid
+    //         { signal.pid, priority, vote }
+    //     )
+    //     players_acknowledged[tabel_req] = true
+    //     send(SIG_TABLE_ACK)
+    // }
+}
+
+void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
 {
 }
 
-void BaseState::changeState(State new_state)
+void BaseState::ProcessSIG_TABLE(Datatype &d)
 {
-    std::unique_lock(ctx->state_mutex);
-
-    ctx->current_state = ctx->States[new_state];
 }
+
+void BaseState::ProcessSIG_END_REQ(Datatype &d)
+{
+}
+
+void BaseState::ProcessSIG_GAME_END(Datatype &d)
+{
+}
+
+#pragma endregion
+
+#pragma region Idle
+
+StateIdle::StateIdle()
+{
+}
+
+void StateIdle::Logic()
+{
+    coutcolor("zmienilem stan na IDLE");
+    ctx->priority = ctx->lamport;
+    std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
+    ctx->next_state = STATE_SEEK;
+}
+
+#pragma endregion
+
+void StateSeek::Logic()
+{
+    coutcolor("zmienilem stan na SEEK");
+}
+
+void StatePlay::Logic()
+{
+    coutcolor("zmienilem stan na PLAY");
+}
+
+#pragma region Utils
+BaseState *Context::GetNextState()
+{
+    return States[next_state];
+}
+
+#pragma endregion

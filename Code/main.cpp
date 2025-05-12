@@ -16,26 +16,6 @@
 
 MPI_Datatype my_data;
 
-struct Datatype
-{
-    unsigned int lamport;
-    MessageType type;
-
-    int players[SEAT_COUNT] = {};
-
-    union
-    {
-        int table_number;
-        int priority;
-    };
-
-    union
-    {
-        int vote;
-        int chosen_game;
-    };
-};
-
 int RANK, SIZE;
 template <typename... Args>
 void coutcolor(Args &&...args)
@@ -102,6 +82,36 @@ void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
 }
 
+void SignalProcesingLoop(Context *ctx)
+{
+    while (true)
+    {
+        Datatype d;
+        MPI_Status status;
+        MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        coutcolor("otrzymano od ", d.priority, "od", status.MPI_SOURCE);
+        // obieranie sygbnałów
+
+        std::unique_lock(ctx->state_mutex);
+
+        ctx->current_state->ProcessState(d);
+    }
+}
+
+void ContinousLogic(Context *ctx)
+{
+    std::thread logic_thread;
+    while (true)
+    {
+        logic_thread = std::thread(&BaseState::Logic, ctx->current_state);
+
+        logic_thread.join();
+
+        std::unique_lock(ctx->state_mutex);
+        ctx->current_state = ctx->GetNextState();
+    }
+}
+
 int main(int argc, char **argv)
 {
 #pragma region initialization
@@ -145,18 +155,12 @@ int main(int argc, char **argv)
     Context *ctx = new Context();
     ctx->current_state = new StateIdle();
     ctx->current_state->EnterState();
-    while (true)
-    {
-        Datatype d;
-        MPI_Status status;
-        MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        coutcolor("otrzymano od ", d.priority, "od", status.MPI_SOURCE);
-        // obieranie sygbnałów
 
-        std::unique_lock(ctx->state_mutex);
+    std::thread signalProcessor(SignalProcesingLoop, ctx);
+    std::thread logicThread(ContinousLogic, ctx);
 
-        ctx->current_state->ProcessState();
-    }
+    logicThread.join();
+    signalProcessor.join();
 
 #pragma region finalization
     std::cout << "rank " << RANK << "\n";
