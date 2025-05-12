@@ -146,23 +146,23 @@ void StateSeek::Logic()
     Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
 
     std::mutex x;
-        std::unique_lock lock(x);
+    std::unique_lock lock(x);
 
-        ctx->cv_seek.wait(lock, [this]()
-                        { 
-                            std::stringstream ss;
-                            for(bool b : ctx->players_acknowledged)
-                            {
-                                ss<<b<<" ";
-                            }
-                            coutcolor(ss.str());
+    ctx->cv_seek.wait(lock, [this]()
+                    { 
+                        std::stringstream ss;
+                        for(bool b : ctx->players_acknowledged)
+                        {
+                            ss<<b<<" ";
+                        }
+                        coutcolor(ss.str());
 
-                            return std::all_of(this->ctx->players_acknowledged,
-                                            this->ctx->players_acknowledged + PLAYER_NUM,
-                                            [](bool b)
-                                            { return b; }); });
+                        return std::all_of(this->ctx->players_acknowledged,
+                                        this->ctx->players_acknowledged + PLAYER_NUM,
+                                        [](bool b)
+                                        { return b; }); });
 
-        coutcolor(RANK, " wlaskie zakonczyl czekanie");
+    coutcolor(RANK, " wlaskie zakonczyl czekanie");
 
     while (true) {
 
@@ -171,7 +171,9 @@ void StateSeek::Logic()
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT) {
             int table_index = pos / SEAT_COUNT;
 
-            if (RANK == queue[table_index + SEAT_COUNT - 1].pid) {
+            bool is_last = RANK == queue[table_index + SEAT_COUNT - 1].pid;
+            coutcolor(RANK, "jestem ostatni? (", queue[table_index + SEAT_COUNT - 1].pid, ")", is_last);
+            if (is_last) {
 
                 // Obierz stół
                 for (auto tid: ctx->table_numbers) {
