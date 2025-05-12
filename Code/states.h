@@ -21,6 +21,13 @@ enum State
     STATE_STAY
 };
 
+struct QueuePosition
+{
+    int pid;
+    int priority;
+    int vote;
+};
+
 class BaseState; // deklarujemy klasę base state
 
 class Context
@@ -33,7 +40,7 @@ public:
     int priority = 0;
     int lamport = 0;
 
-    std::vector<int> queue = {};
+    std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
     int table_number = 0;

@@ -11,6 +11,7 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
+#include <algorithm>
 
 extern int RANK, SIZE;
 template <typename... Args>
@@ -36,29 +37,25 @@ void BaseState::ProcessState(Datatype &d)
     {
 
     case SIG_TABLE_REQ:
-
+        ProcessSIG_TABLE_REQ(d);
+        break;
     case SIG_TABLE_ACK:
-
+        ProcessSIG_SIG_TABLE_ACK(d);
+        break;
     case SIG_TABLE:
-
+        ProcessSIG_END_REQ(d);
+        break;
     case SIG_END_REQ:
-
+        ProcessSIG_END_REQ(d);
+        break;
     case SIG_GAME_END:
+        ProcessSIG_GAME_END(d);
         break;
     }
 }
 
 void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
 {
-
-    // signal SIG_TABLE_REQ(priority: int, vote: int) {
-    //     queue.insert(
-    //         queue.find(pririty, signal.pid) // Znajdź miejsce w kolejce na bazie priorytetu, ewentualnie pid
-    //         { signal.pid, priority, vote }
-    //     )
-    //     players_acknowledged[tabel_req] = true
-    //     send(SIG_TABLE_ACK)
-    // }
 }
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
@@ -75,6 +72,25 @@ void BaseState::ProcessSIG_END_REQ(Datatype &d)
 
 void BaseState::ProcessSIG_GAME_END(Datatype &d)
 {
+    std::set<int> companions(d.players, d.players + PLAYER_NUM);
+
+    std::vector<QueuePosition> &queue = ctx->queue;
+    for (auto player : d.players)
+    {
+        queue.erase(
+            std::remove_if(queue.begin(),
+                           queue.end(),
+                           [&companions](QueuePosition p)
+                           { return companions.find(p.pid) != companions.end(); }),
+            queue.end()); // usuwamy gaczy z kolejki
+
+        ctx->players_acknowledged[player] = false;
+    }
+
+    std::vector<int> &tables = ctx->table_numbers;
+
+    std::remove_if(tables.begin(), tables.end(), [&d](int t)
+                   { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 }
 
 #pragma endregion
@@ -93,7 +109,7 @@ void StateIdle::Logic()
     ctx->lamport++;
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
     ctx->next_state = STATE_SEEK;
-    coutcolor("aaaa", ctx->next_state, " ", ctx->lamport);
+    return;
 }
 
 #pragma endregion
