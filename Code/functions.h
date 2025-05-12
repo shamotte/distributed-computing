@@ -59,8 +59,6 @@ void Send_SIG_END_REQ(int dest);
 
 void Broadcast_SIG_GAME_END(std::set<int> players, int table_number);
 
-
-
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
 

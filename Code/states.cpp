@@ -246,6 +246,22 @@ void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
     std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
+
+    for (auto comp: ctx->companions) {
+        Send_SIG_END_REQ(comp);
+    }
+
+    std::mutex x;
+    std::unique_lock lock(x);
+
+    ctx->cv_game_end_req.wait(lock, [this]()
+        { return this->ctx->end_ready == SEAT_COUNT; }
+    );
+
+    coutcolor("Gra zakończona!");
+
+    ctx->next_state = STATE_IDLE;
+    return;
 }
 
 #pragma endregion
