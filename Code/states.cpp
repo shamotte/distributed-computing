@@ -8,6 +8,7 @@
 #include <set>
 #include <chrono>
 #include <stdlib.h>
+#include <cstring>
 
 #include "config.h"
 #include "functions.h"
