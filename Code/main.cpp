@@ -15,7 +15,6 @@
 #include "states.h"
 
 MPI_Datatype my_data;
-
 unsigned int global_lamport;
 int RANK, SIZE;
 
