@@ -13,6 +13,7 @@
 #include "states.h"
 
 extern int RANK, SIZE;
+extern unsigned int global_lamport;
 
 const std::string PlayerNames[] = {
     "Eustachy",
