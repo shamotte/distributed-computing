@@ -170,6 +170,11 @@ void StateSeek::Logic()
         auto &queue = ctx->queue;
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT) {
             int table_index = pos / SEAT_COUNT;
+            if (pos + SEAT_COUNT > queue.size()) {
+                coutcolor(RANK, " nie ma wystarczającej liczby graczy");
+                break;
+            }
+
             coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
             int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
