@@ -81,9 +81,9 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
 
 #pragma region Idle
 
-StateIdle::StateIdle(Context *ctx)
+StateIdle::StateIdle(Context *_ctx)
 {
-    ctx = ctx;
+    ctx = _ctx;
 }
 
 void StateIdle::Logic()
@@ -99,9 +99,9 @@ void StateIdle::Logic()
 #pragma endregion
 
 #pragma region seek
-StateSeek::StateSeek(Context *ctx)
+StateSeek::StateSeek(Context *_ctx)
 {
-    ctx = ctx;
+    ctx = _ctx;
 }
 
 void StateSeek::Logic()
@@ -113,9 +113,9 @@ void StateSeek::Logic()
 
 #pragma region Play
 
-StatePlay::StatePlay(Context *ctx)
+StatePlay::StatePlay(Context *_ctx)
 {
-    ctx = ctx;
+    ctx = _ctx;
 }
 
 void StatePlay::Logic()
