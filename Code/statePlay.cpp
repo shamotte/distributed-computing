@@ -25,13 +25,11 @@ void StatePlay::Logic()
     std::mutex x;
     std::unique_lock lock(x);
 
-    if (!ctx->end_ready == SEAT_COUNT)
-    { // Edge case kiedy nie zdąży dojść
-        ctx->cv_game_end_req.wait(lock, [this]()
-                                  {
+    ctx->cv_game_end_req.wait(lock, [this]()
+                              {
             coutcolor("obudzoned");
             return this->ctx->end_ready == SEAT_COUNT; });
-    }
+
     ctx->end_ready = 0;
     coutcolor("Wszyscy gotowi do zakończenia!");
 
