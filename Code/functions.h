@@ -53,7 +53,7 @@ void check_thread_support(int provided);
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
 extern unsigned int games_played;
-extern Context *global_context;
+extern ctxptr global_context;
 
 const std::string PlayerNames[] = {
     "Eustachy",

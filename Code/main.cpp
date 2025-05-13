@@ -15,8 +15,6 @@
 #include "state.h"
 #include "signalSender.h"
 
-typedef Context *ctxptr;
-
 MPI_Datatype my_data;
 unsigned int global_lamport;
 int RANK, SIZE;
