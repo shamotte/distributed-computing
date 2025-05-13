@@ -50,6 +50,8 @@ void BaseState::ProcessSignal(Datatype &d)
         break;
     }
 
+    auto &queue = ctx->queue;
+
     std::stringstream ss;
         ss << "STAN KOLEJKI: ";
         for (int pos = 0; pos < queue.size(); pos += 1) {
