@@ -66,6 +66,8 @@ public:
 
     BaseState *GetNextState();
 };
+
+typedef Context *ctxptr;
 class BaseState
 {
 public:

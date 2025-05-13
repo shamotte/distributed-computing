@@ -15,12 +15,14 @@
 #include "state.h"
 #include "signalSender.h"
 
+typedef Context *ctxptr;
+
 MPI_Datatype my_data;
 unsigned int global_lamport;
 int RANK, SIZE;
 unsigned int games_played;
 
-Context *global_context;
+ctxptr global_context;
 
 std::mutex pls_work;
 
