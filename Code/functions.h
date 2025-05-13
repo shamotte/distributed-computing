@@ -10,8 +10,6 @@
 #include <set>
 #include <sstream>
 
-#include "state.h"
-
 enum MessageType
 {
     SIG_TABLE_REQ = 0,
@@ -47,6 +45,8 @@ struct MPIMessage
         int chosen_game;
     };
 };
+
+#include "state.h"
 
 void check_thread_support(int provided);
 
