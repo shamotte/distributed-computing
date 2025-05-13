@@ -58,7 +58,7 @@ void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
                      { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
         QueuePosition{d.pid, d.priority, d.vote});
 
-    ctx->players_acknowledged[d.pid] = d.lamport;
+    ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
     ctx->cv_seek.notify_all();
 
@@ -67,7 +67,7 @@ void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
 {
-    ctx->players_acknowledged[d.pid] = d.lamport;
+    ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
 }
 
