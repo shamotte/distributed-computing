@@ -42,12 +42,12 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 {
     global_lamport++;
 
-	MPIMessage d;
+    MPIMessage d;
     d.type = SIG_TABLE_ACK;
     d.lamport = global_lamport;
     d.pid = RANK;
 
-	MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
+    MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
 }
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
@@ -71,12 +71,12 @@ void Send_SIG_END_REQ(int dest)
 {
     global_lamport++;
 
-	MPIMessage d;
-	d.type = SIG_END_REQ;
-	d.lamport = global_lamport;
+    MPIMessage d;
+    d.type = SIG_END_REQ;
+    d.lamport = global_lamport;
     d.pid = RANK;
 
-	MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
+    MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
 
 } // zgłoszenie gotowości do zakończenia gry
 
@@ -84,18 +84,19 @@ void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
     global_lamport++;
 
-	MPIMessage d;
-	d.type = SIG_GAME_END;
-	d.lamport = global_lamport;
+    MPIMessage d;
+    d.type = SIG_GAME_END;
+    d.lamport = global_lamport;
     d.pid = RANK;
 
-	std::copy(players.begin(), players.end(), d.players);
+    std::copy(players.begin(), players.end(), d.players);
 
-	d.table_number = table_number;
+    d.table_number = table_number;
 
-	for (int i = 0; i < SIZE; i++)
+    for (int i = 0; i < SIZE; i++)
     {
 
         MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
+        coutcolor("wysylam SIG_GAME_END do ", i);
     }
 }
