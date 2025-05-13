@@ -152,7 +152,7 @@ StateSeek::StateSeek(Context *_ctx)
 
 void StateSeek::Logic()
 {
-    coutcolor("zmienilem stan na SEEK");
+    coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");
 
     Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
 
@@ -195,17 +195,17 @@ void StateSeek::Logic()
             int table_index = pos / SEAT_COUNT;
             if (pos + SEAT_COUNT > queue.size())
             {
-                coutcolor(RANK, " nie ma wystarczającej liczby graczy");
+                //coutcolor(RANK, " nie ma wystarczającej liczby graczy");
                 break;
             }
 
-            coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
+            //coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
             int first_player_index = table_index * SEAT_COUNT;
             int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
 
             bool is_last = RANK == queue[last_player_index].pid;
-            coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
+            //coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
             if (is_last)
             {
 
@@ -250,7 +250,7 @@ void StateSeek::Logic()
         }
 
         // Nie znaleziono stołu
-        coutcolor(RANK, " nie znaleziiono stołu");
+        coutcolor(RANK, " Nie znaleziono.");
 
         // Zakończ stan jeśli ustawiono na PLAY - failsafe
         if (ctx->next_state == STATE_PLAY)
