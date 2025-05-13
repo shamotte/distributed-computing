@@ -53,14 +53,16 @@ void BaseState::ProcessSignal(Datatype &d)
     auto &queue = ctx->queue;
 
     std::stringstream ss;
-        ss << "STAN KOLEJKI: ";
-        for (int pos = 0; pos < queue.size(); pos += 1) {
-            ss << queue[pos].pid << " ";
-            if ((pos + 1) % SEAT_COUNT == 0) {
-                ss << "|";
-            }
+    ss << "STAN KOLEJKI: ";
+    for (int pos = 0; pos < queue.size(); pos += 1)
+    {
+        ss << queue[pos].pid << " ";
+        if ((pos + 1) % SEAT_COUNT == 0)
+        {
+            ss << "|";
         }
-        coutcolor(ss.str());
+    }
+    coutcolor(ss.str());
 }
 
 void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
@@ -106,14 +108,14 @@ void BaseState::ProcessSIG_END_REQ(Datatype &d)
 
 void BaseState::ProcessSIG_GAME_END(Datatype &d)
 {
-    std::set<int> companions(d.players, d.players + PLAYER_NUM);
+    std::set<int> companions(d.players, d.players + SEAT_COUNT);
 
     std::vector<QueuePosition> &queue = ctx->queue;
     queue.erase(
         std::remove_if(queue.begin(),
-                        queue.end(),
-                        [&companions](QueuePosition p)
-                        { return companions.find(p.pid) != companions.end(); }),
+                       queue.end(),
+                       [&companions](QueuePosition p)
+                       { return companions.find(p.pid) != companions.end(); }),
         queue.end()); // usuwamy gaczy z kolejki
 
     std::vector<int> &tables = ctx->table_numbers;
@@ -190,9 +192,11 @@ void StateSeek::Logic()
 
         std::stringstream ss;
         ss << "STAN KOLEJKI: ";
-        for (int pos = 0; pos < queue.size(); pos += 1) {
+        for (int pos = 0; pos < queue.size(); pos += 1)
+        {
             ss << queue[pos].pid << " ";
-            if ((pos + 1) % SEAT_COUNT == 0) {
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
                 ss << "|";
             }
         }
@@ -203,17 +207,17 @@ void StateSeek::Logic()
             int table_index = pos / SEAT_COUNT;
             if (pos + SEAT_COUNT > queue.size())
             {
-                //coutcolor(RANK, " nie ma wystarczającej liczby graczy");
+                // coutcolor(RANK, " nie ma wystarczającej liczby graczy");
                 break;
             }
 
-            //coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
+            // coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
             int first_player_index = table_index * SEAT_COUNT;
             int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
 
             bool is_last = RANK == queue[last_player_index].pid;
-            //coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
+            // coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
             if (is_last)
             {
 
@@ -311,7 +315,8 @@ void StatePlay::Logic()
     if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end()))
     {
         std::stringstream ss;
-        for (auto c : ctx->companions) {
+        for (auto c : ctx->companions)
+        {
             ss << c << ",";
         }
 
