@@ -201,6 +201,8 @@ void StateSeek::Logic()
     while (true)
     {
 
+        coutcolor("----- SPRAWDZAM WEJŚCIE -----")
+
         auto &queue = ctx->queue;
 
         std::stringstream ss;
