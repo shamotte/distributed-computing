@@ -162,13 +162,13 @@ void StateSeek::Logic()
 
     ctx->cv_seek.wait(lock, [this]()
                       { 
-                        std::stringstream ss;
+                        /*std::stringstream ss;
                         ss<<"M: "<< (ctx->priority)<<" , ";
                         for(int b : ctx->players_acknowledged)
                         {
                             ss<<b<<" ";
                         }
-                        coutcolor(ss.str());
+                        coutcolor(ss.str());*/
 
                         return std::all_of(this->ctx->players_acknowledged,
                                         this->ctx->players_acknowledged + PLAYER_NUM,
