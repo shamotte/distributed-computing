@@ -25,8 +25,7 @@ const std::string StateNames[] = {
     "IDLE",
     "SEEK",
     "PLAY",
-    "STAY"
-};
+    "STAY"};
 
 struct QueuePosition
 {
@@ -56,7 +55,7 @@ public:
     std::set<int> companions = {};
     int end_ready = 0;
     int chosen_game = 0;
-    bool players_acknowledged[PLAYER_NUM] = {};
+    unsigned int players_acknowledged[PLAYER_NUM] = {};
 
     std::thread logic_thread;
 
