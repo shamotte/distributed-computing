@@ -1,43 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <mutex>
-#include <shared_mutex>
-#include <mutex>
-#include <string>
-#include <set>
-#include <chrono>
-#include <stdlib.h>
-#include <cstring>
+#include "state.h"
 
-#include "config.h"
-#include "functions.h"
-#include "states.h"
-#include "signalSender.h"
-
-#include <algorithm>
-
-extern int RANK, SIZE;
-extern unsigned int global_lamport;
-extern unsigned int games_played;
-
-#pragma region BaseState
-
-void BaseState::Logic()
-{
-}
-
-
-
-#pragma endregion
-
-#pragma region
-
-
-
-#pragma endregion
-
-#pragma region seek
 StateSeek::StateSeek(Context *_ctx)
 {
     ctx = _ctx;
@@ -169,15 +131,3 @@ void StateSeek::Logic()
         }
     }
 }
-
-#pragma endregion
-
-
-#pragma region Utils
-BaseState *Context::GetNextState()
-{
-    coutcolor("next state is", priority);
-    return States[next_state];
-}
-
-#pragma endregion

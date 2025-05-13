@@ -12,7 +12,7 @@
 
 #include "config.h"
 #include "functions.h"
-#include "states.h"
+#include "state.h"
 #include "signalSender.h"
 
 #include <algorithm>
