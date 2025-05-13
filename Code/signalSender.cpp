@@ -77,6 +77,7 @@ void Send_SIG_END_REQ(int dest)
     d.pid = RANK;
 
     MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
+    coutcolor("wysylam SIG_END_REQ do ", i);
 
 } // zgłoszenie gotowości do zakończenia gry
 

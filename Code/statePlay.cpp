@@ -45,6 +45,7 @@ void StatePlay::Logic()
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
 
+    coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
     ctx->cv_gameover.wait(lock, [this]()
                           { return this->ctx->cv_game_over_flag; });
 
