@@ -124,6 +124,10 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 
     ctx->cv_seek_wake.notify_all();
+
+
+    ctx->next_state = STATE_IDLE;
+    ctx->cv_gameover.notify_all();
 }
 
 #pragma endregion
@@ -309,8 +313,7 @@ void StatePlay::Logic()
     ctx->cv_game_end_req.wait(lock, [this]()
                               { return this->ctx->end_ready == SEAT_COUNT; });
 
-    coutcolor("Gra zakończona!");
-    games_played++;
+    coutcolor("Wszyscy gotowi do zakończenia!");
 
     if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end()))
     {
@@ -323,6 +326,13 @@ void StatePlay::Logic()
         coutcolor("GAME OVER, GO HOME.", ss.str());
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
+
+    ctx->cv_gameover.wait(lock, [this]()
+        { return this->ctx->next_state == STATE_IDLE; }
+    );
+
+    coutcolor("Gra zakończona!");
+    games_played++;
 
     ctx->next_state = STATE_IDLE;
     return;

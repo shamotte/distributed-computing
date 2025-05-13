@@ -47,6 +47,7 @@ public:
     std::condition_variable cv_seek;
     std::condition_variable cv_seek_wake;
     std::condition_variable cv_game_end_req;
+    std::condition_variable cv_gameover;
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
