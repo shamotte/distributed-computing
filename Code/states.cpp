@@ -107,18 +107,12 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
     std::set<int> companions(d.players, d.players + PLAYER_NUM);
 
     std::vector<QueuePosition> &queue = ctx->queue;
-    for (auto player : d.players)
-    {
-        queue.erase(
-            std::remove_if(queue.begin(),
-                           queue.end(),
-                           [&companions](QueuePosition p)
-                           { return companions.find(p.pid) != companions.end(); }),
-            queue.end()); // usuwamy gaczy z kolejki
-
-        // HUH?
-        ////ctx->players_acknowledged[player] = false;
-    }
+    queue.erase(
+        std::remove_if(queue.begin(),
+                        queue.end(),
+                        [&companions](QueuePosition p)
+                        { return companions.find(p.pid) != companions.end(); }),
+        queue.end()); // usuwamy gaczy z kolejki
 
     std::vector<int> &tables = ctx->table_numbers;
 
@@ -314,7 +308,12 @@ void StatePlay::Logic()
 
     if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end()))
     {
-        coutcolor("GAME OVER, GO HOME.");
+        std::stringstream ss;
+        for (auto c : ctx->companions) {
+            ss << c << ",";
+        }
+
+        coutcolor("GAME OVER, GO HOME.", ss.str());
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
 
