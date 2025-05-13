@@ -1,5 +1,7 @@
 #include "state.h"
 
+extern std::lock pls_work;
+
 StateSeek::StateSeek(Context *_ctx)
 {
     ctx = _ctx;
@@ -7,15 +9,20 @@ StateSeek::StateSeek(Context *_ctx)
 
 void StateSeek::Logic()
 {
-    ctx->priority = global_lamport;
-    coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");
+    {
+        std::unique_lock lock(pls_work);
 
-    Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
+        ctx->priority = global_lamport;
+        coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");
+
+        Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
+    }
 
     std::mutex x;
     std::unique_lock lock(x);
 
-    ctx->cv_seek.wait(lock, [this]() { 
+    ctx->cv_seek.wait(lock, [this]()
+                      { 
 		std::stringstream ss;
 		ss<<"M: "<< (ctx->priority)<<" , ";
 		for(int b : ctx->players_acknowledged) {
@@ -27,8 +34,7 @@ void StateSeek::Logic()
 			this->ctx->players_acknowledged,
 			this->ctx->players_acknowledged + PLAYER_NUM,
 			[this](int b){ return ctx->priority < b; }
-		);
-	});
+		); });
 
     coutcolor(RANK, " Otrzymałem odpowiedzi!");
 

@@ -20,6 +20,8 @@ unsigned int global_lamport;
 int RANK, SIZE;
 unsigned int games_played;
 
+std::mutex pls_work;
+
 void SignalProcesingLoop(Context *ctx)
 {
     while (true)
@@ -28,7 +30,9 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
+        std::unique_lock lock(pls_work);
         global_lamport = std::max(global_lamport, d.lamport) + 1;
+
         coutcolor("otrzymano  ", d.priority, "od ", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
 
         std::unique_lock(ctx->state_mutex);
