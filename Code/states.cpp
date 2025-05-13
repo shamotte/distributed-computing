@@ -110,12 +110,20 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
 {
     std::set<int> companions(d.players, d.players + SEAT_COUNT);
 
+    std::stringstream ss;
+    ss << "do usuniecia";
+    for (int x : companions)
+    {
+        ss << x << " ";
+    }
+    coutcolor(ss.str());
+
     std::vector<QueuePosition> &queue = ctx->queue;
     queue.erase(
         std::remove_if(queue.begin(),
                        queue.end(),
-                       [&companions](QueuePosition p)
-                       { return companions.find(p.pid) != companions.end(); }),
+                       [&companions, &d](QueuePosition p)
+                       { return (companions.find(p.pid) != companions.end()) && (p.priority < d.lamport); }),
         queue.end()); // usuwamy gaczy z kolejki
 
     std::vector<int> &tables = ctx->table_numbers;
