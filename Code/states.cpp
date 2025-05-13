@@ -201,7 +201,7 @@ void StateSeek::Logic()
     while (true)
     {
 
-        coutcolor("----- SPRAWDZAM WEJŚCIE -----")
+        coutcolor("----- SPRAWDZAM WEJŚCIE -----");
 
         auto &queue = ctx->queue;
 
