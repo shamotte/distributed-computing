@@ -25,7 +25,7 @@ const std::string MessageNames[] = {
     "SIG_END_REQ",
     "SIG_GAME_END"};
 
-struct Datatype
+struct MPIMessage
 {
     unsigned int lamport;
     MessageType type;

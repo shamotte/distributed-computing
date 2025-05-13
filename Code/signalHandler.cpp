@@ -21,7 +21,7 @@ extern int RANK, SIZE;
 extern unsigned int global_lamport;
 extern unsigned int games_played;
 
-void BaseState::ProcessSignal(Datatype &d)
+void BaseState::ProcessSignal(MPIMessage &d)
 {
 
     switch (d.type)
@@ -59,7 +59,7 @@ void BaseState::ProcessSignal(Datatype &d)
     coutcolor(ss.str());
 }
 
-void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
+void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
     std::vector<QueuePosition> &queue = ctx->queue;
     ctx->queue.insert(
@@ -74,13 +74,13 @@ void BaseState::ProcessSIG_TABLE_REQ(Datatype &d)
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
-void BaseState::ProcessSIG_SIG_TABLE_ACK(Datatype &d)
+void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 {
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
 }
 
-void BaseState::ProcessSIG_TABLE(Datatype &d)
+void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 {
     ctx->table_number = d.table_number;
     ctx->chosen_game = d.chosen_game;
@@ -94,14 +94,14 @@ void BaseState::ProcessSIG_TABLE(Datatype &d)
     ctx->cv_seek_wake.notify_all();
 }
 
-void BaseState::ProcessSIG_END_REQ(Datatype &d)
+void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
 {
     ctx->end_ready++;
     coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
     ctx->cv_game_end_req.notify_all();
 }
 
-void BaseState::ProcessSIG_GAME_END(Datatype &d)
+void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
 {
     std::set<int> companions(d.players, d.players + SEAT_COUNT);
 

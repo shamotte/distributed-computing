@@ -24,7 +24,7 @@ void SignalProcesingLoop(Context *ctx)
 {
     while (true)
     {
-        Datatype d;
+        MPIMessage d;
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
@@ -65,12 +65,12 @@ int main(int argc, char **argv)
     MPI_Datatype types[] = {MPI_UNSIGNED, MPI_INT, MPI_UNSIGNED, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint offset[NITEMS] = {
-        offsetof(Datatype, lamport),
-        offsetof(Datatype, type),
-        offsetof(Datatype, pid),
-        offsetof(Datatype, players),
-        offsetof(Datatype, table_number),
-        offsetof(Datatype, vote)};
+        offsetof(MPIMessage, lamport),
+        offsetof(MPIMessage, type),
+        offsetof(MPIMessage, pid),
+        offsetof(MPIMessage, players),
+        offsetof(MPIMessage, table_number),
+        offsetof(MPIMessage, vote)};
 
     MPI_Type_create_struct(NITEMS, blockSizes, offset, types, &my_data);
     MPI_Type_commit(&my_data);

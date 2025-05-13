@@ -14,6 +14,8 @@
 #include "functions.h"
 #include <condition_variable>
 
+#include "signalSender.h"
+
 enum State
 {
     STATE_IDLE,
@@ -68,13 +70,13 @@ public:
     Context *ctx;
 
     virtual void Logic();
-    virtual void ProcessSignal(Datatype &d);
+    virtual void ProcessSignal(MPIMessage &d);
 
-    virtual void ProcessSIG_TABLE_REQ(Datatype &d);
-    virtual void ProcessSIG_SIG_TABLE_ACK(Datatype &d);
-    virtual void ProcessSIG_TABLE(Datatype &d);
-    virtual void ProcessSIG_END_REQ(Datatype &d);
-    virtual void ProcessSIG_GAME_END(Datatype &d);
+    virtual void ProcessSIG_TABLE_REQ(MPIMessage &d);
+    virtual void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d);
+    virtual void ProcessSIG_TABLE(MPIMessage &d);
+    virtual void ProcessSIG_END_REQ(MPIMessage &d);
+    virtual void ProcessSIG_GAME_END(MPIMessage &d);
 };
 
 class StateIdle : public BaseState
