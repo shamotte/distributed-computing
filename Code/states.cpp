@@ -270,8 +270,8 @@ void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
 
-    std::this_thread::sleep_for((std::chrono::seconds(float((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP))));
-
+    std::this_thread::sleep_for(std::chrono::seconds(float((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP)));
+    ((((()))));
     for (auto comp : ctx->companions)
     {
         Send_SIG_END_REQ(comp);
