@@ -180,6 +180,16 @@ void StateSeek::Logic()
     {
 
         auto &queue = ctx->queue;
+
+        std::stringstream ss;
+        for (int pos = 0; pos < queue.size(); pos += 1) {
+            ss << queue[pos].pid << " ";
+            if (pos % SEAT_COUNT == 0) {
+                ss << "|";
+            }
+        }
+        coutcolor(ss.str());
+
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT)
         {
             int table_index = pos / SEAT_COUNT;
