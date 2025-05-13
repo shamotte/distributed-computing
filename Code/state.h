@@ -73,7 +73,7 @@ public:
 
     virtual void Logic();
     virtual void ProcessSignal(MPIMessage &d);
-    virtual std::string GetName() = 0;
+    virtual std::string GetName();
 
     virtual void ProcessSIG_TABLE_REQ(MPIMessage &d);
     virtual void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d);
