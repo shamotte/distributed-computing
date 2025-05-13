@@ -8,7 +8,8 @@ StatePlay::StatePlay(Context *_ctx)
 void StatePlay::Logic()
 {
     std::stringstream ss;
-    for (auto c: ctx->companions) {
+    for (auto c : ctx->companions)
+    {
         ss << c << ",";
     }
     coutcolor("zmienilem stan na PLAY - ", ss.str());
@@ -23,11 +24,12 @@ void StatePlay::Logic()
     std::mutex x;
     std::unique_lock lock(x);
 
-    if (!ctx->end_ready == SEAT_COUNT) { // Edge case kiedy nie zdąży dojść 
-        ctx->cv_game_end_req.wait(lock, [this](){
+    if (!ctx->end_ready == SEAT_COUNT)
+    { // Edge case kiedy nie zdąży dojść
+        ctx->cv_game_end_req.wait(lock, [this]()
+                                  {
             coutcolor("obudzoned");
-            return this->ctx->end_ready == SEAT_COUNT;
-        });
+            return this->ctx->end_ready == SEAT_COUNT; });
     }
 
     coutcolor("Wszyscy gotowi do zakończenia!");
@@ -45,9 +47,9 @@ void StatePlay::Logic()
     }
 
     ctx->cv_gameover.wait(lock, [this]()
-        { return this->ctx->next_state == STATE_IDLE; }
-    );
+                          { return this->ctx->cv_game_over_flag; });
 
+    ctx->cv_game_over_flag = false;
     coutcolor("Gra zakończona!");
     games_played++;
 
