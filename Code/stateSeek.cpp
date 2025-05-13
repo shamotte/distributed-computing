@@ -137,3 +137,8 @@ void StateSeek::Logic()
         }
     }
 }
+
+std::string StateSeek::GetName()
+{
+    return "SEEK";
+}

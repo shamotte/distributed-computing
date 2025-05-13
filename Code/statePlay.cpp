@@ -56,3 +56,8 @@ void StatePlay::Logic()
     ctx->next_state = STATE_IDLE;
     return;
 }
+
+std::string StatePlay::GetName()
+{
+    return "PLAY";
+}

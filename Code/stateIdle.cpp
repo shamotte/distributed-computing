@@ -19,3 +19,8 @@ void StateIdle::Logic()
     ctx->next_state = STATE_SEEK;
     return;
 }
+
+std::string StateIdle::GetName()
+{
+    return "IDLE";
+}

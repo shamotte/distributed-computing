@@ -20,6 +20,8 @@ unsigned int global_lamport;
 int RANK, SIZE;
 unsigned int games_played;
 
+Context *global_context;
+
 std::mutex pls_work;
 
 void SignalProcesingLoop(Context *ctx)
@@ -87,6 +89,7 @@ int main(int argc, char **argv)
     srand(time(NULL));
 
     Context *ctx = new Context();
+    global_context = ctx;
 
     std::map<State, BaseState *> &states = ctx->States;
 
