@@ -5,6 +5,7 @@ StatePlay::StatePlay(Context *_ctx)
     ctx = _ctx;
 }
 extern std::string global_state_name;
+extern std::mutex pls_work;
 void StatePlay::Logic()
 {
     global_state_name = "PLAY";
@@ -44,12 +45,15 @@ void StatePlay::Logic()
         coutcolor("GAME OVER, GO HOME.", ss.str());
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
-    else
-    {
 
-        // coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
-        ctx->cv_gameover.wait(lock);
+    coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
+
+    {
+        std::unique_lock l1(pls_work);
+        ctx->cv_gameover.wait(l1, [this]()
+                              { return this->ctx->cv_game_over_flag; });
     }
+
     ctx->cv_game_over_flag = false;
     coutcolor("Gra zakończona!");
     games_played++;
