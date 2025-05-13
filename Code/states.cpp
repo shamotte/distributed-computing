@@ -307,7 +307,11 @@ StatePlay::StatePlay(Context *_ctx)
 
 void StatePlay::Logic()
 {
-    coutcolor("zmienilem stan na PLAY");
+    std::stringstream ss;
+    for (auto c: ctx->companions) {
+        ss << c << ",";
+    }
+    coutcolor("zmienilem stan na PLAY - ", ss.str());
 
     std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
 
