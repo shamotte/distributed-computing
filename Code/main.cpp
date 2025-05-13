@@ -13,7 +13,7 @@
 #include "config.h"
 #include "functions.h"
 #include "states.h"
-#include "signals.h"
+#include "signalSender.h"
 
 MPI_Datatype my_data;
 unsigned int global_lamport;
