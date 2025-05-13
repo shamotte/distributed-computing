@@ -9,6 +9,7 @@
 #include <set>
 #include <chrono>
 #include <map>
+#include <algorithm>
 
 #include "config.h"
 #include "functions.h"
