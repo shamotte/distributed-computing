@@ -247,6 +247,7 @@ void StateSeek::Logic()
 
                 // Własne przejście do stanu gry
                 ctx->next_state = STATE_PLAY;
+                coutcolor("PLAY INITIALIZER");
                 return;
             }
         }
@@ -257,6 +258,7 @@ void StateSeek::Logic()
         // Zakończ stan jeśli ustawiono na PLAY - failsafe
         if (ctx->next_state == STATE_PLAY)
         {
+            coutcolor("PLAY 1");
             return;
         }
 
@@ -265,6 +267,7 @@ void StateSeek::Logic()
         // Zakończ stan jeśli ustawiono na PLAY
         if (ctx->next_state == STATE_PLAY)
         {
+            coutcolor("PLAY 2");
             return;
         }
     }
