@@ -162,7 +162,7 @@ void StateSeek::Logic()
                       { 
                         std::stringstream ss;
                         ss<<"M: "<< (ctx->priority)<<" , ";
-                        for(bool b : ctx->players_acknowledged)
+                        for(int b : ctx->players_acknowledged)
                         {
                             ss<<b<<" ";
                         }
