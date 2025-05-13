@@ -119,7 +119,7 @@ void BaseState::ProcessSIG_GAME_END(Datatype &d)
 
 #pragma endregion
 
-#pragma region Idle
+#pragma region
 
 StateIdle::StateIdle(Context *_ctx)
 {
@@ -136,7 +136,7 @@ void StateIdle::Logic()
 
     coutcolor("zmienilem stan na IDLE");
     ctx->priority = global_lamport;
-    std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
+    std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
     ctx->next_state = STATE_SEEK;
     return;
 }
@@ -270,7 +270,7 @@ void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
 
-    std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
+    std::this_thread::sleep_for((MAX_SLEEP > 0)?rand() % MAX_SLEEP : MAX_SLEEP));
 
     for (auto comp : ctx->companions)
     {
