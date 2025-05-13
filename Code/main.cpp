@@ -35,7 +35,7 @@ void SignalProcesingLoop(Context *ctx)
         std::unique_lock l1(pls_work);
         global_lamport = std::max(global_lamport, d.lamport) + 1;
 
-        coutcolor("otrzymano  ", d.priority, "od ", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
+        coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
 
         std::unique_lock l2(ctx->state_mutex);
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 
     Context *ctx = new Context();
 
-        std::map<State, BaseState *> &states = ctx->States;
+    std::map<State, BaseState *> &states = ctx->States;
 
     states[STATE_IDLE] = new StateIdle(ctx);
     states[STATE_SEEK] = new StateSeek(ctx);
