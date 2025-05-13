@@ -183,7 +183,7 @@ void StateSeek::Logic()
         auto &queue = ctx->queue;
 
         std::stringstream ss;
-        ss << "STAN KOLEJKI: "
+        ss << "STAN KOLEJKI: ";
         for (int pos = 0; pos < queue.size(); pos += 1) {
             ss << queue[pos].pid << " ";
             if ((pos + 1) % SEAT_COUNT == 0) {
