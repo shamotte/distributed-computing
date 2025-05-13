@@ -23,8 +23,7 @@ const std::string MessageNames[] = {
     "SIG_TABLE_ACK",
     "SIG_TABLE",
     "SIG_END_REQ",
-    "SIG_GAME_END"
-};
+    "SIG_GAME_END"};
 
 struct Datatype
 {
@@ -77,12 +76,15 @@ void coutcolor(Args &&...args)
     std::ostringstream oss;
     (oss << ... << args); // składnia fold expression (C++17)
     std::cout
-		<< "\033[0;" << (31 + RANK % 7) << "m"
-		<< "["
-		<< global_lamport
-		<< "\t] "
-		<< PlayerNames[RANK % (sizeof(PlayerNames)/sizeof(*PlayerNames))]
-		<< "\t"
-		<< oss.str()
-		<< "\033[0m\n";
+        << "\033[0;" << (31 + RANK % 7) << "m"
+        << "["
+        << global_lamport
+        << "\t] "
+        << "("
+        << RANK
+        << ") "
+        << PlayerNames[RANK % (sizeof(PlayerNames) / sizeof(*PlayerNames))]
+        << "\t"
+        << oss.str()
+        << "\033[0m\n";
 }
