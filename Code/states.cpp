@@ -161,7 +161,7 @@ void StateSeek::Logic()
     ctx->cv_seek.wait(lock, [this]()
                       { 
                         std::stringstream ss;
-                        ss<"M: "<< ctx->priority<<" , ";
+                        ss<<"M: "<< (ctx->priority)<<" , ";
                         for(bool b : ctx->players_acknowledged)
                         {
                             ss<<b<<" ";
@@ -270,7 +270,7 @@ void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
 
-        std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
+    std::this_thread::sleep_for(std::chrono::seconds(rand() % 10));
 
     for (auto comp : ctx->companions)
     {
