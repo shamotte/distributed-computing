@@ -135,7 +135,6 @@ void StateIdle::Logic()
     ctx->chosen_game = -1;
 
     coutcolor("zmienilem stan na IDLE");
-    ctx->priority = global_lamport;
 
     std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
     ctx->next_state = STATE_SEEK;
@@ -152,6 +151,7 @@ StateSeek::StateSeek(Context *_ctx)
 
 void StateSeek::Logic()
 {
+    ctx->priority = global_lamport;
     coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");
 
     Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
