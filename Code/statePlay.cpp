@@ -4,9 +4,10 @@ StatePlay::StatePlay(Context *_ctx)
 {
     ctx = _ctx;
 }
-
+extern std::string global_state_name;
 void StatePlay::Logic()
 {
+    global_state_name = "PLAY";
     std::stringstream ss;
     for (auto c : ctx->companions)
     {

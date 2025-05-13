@@ -4,10 +4,12 @@ StateIdle::StateIdle(Context *_ctx)
 {
     ctx = _ctx;
 }
+extern std::string global_state_name;
 
 void StateIdle::Logic()
 {
 
+    global_state_name = "IDLE";
     ctx->table_number = -1;
     ctx->companions.clear();
     ctx->end_ready = 0;

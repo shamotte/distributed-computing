@@ -51,6 +51,7 @@ void check_thread_support(int provided);
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
 extern unsigned int games_played;
+extern std::string global_state_name;
 
 const std::string PlayerNames[] = {
     "Eustachy",
@@ -87,6 +88,7 @@ void coutcolor(Args &&...args)
         << games_played
         << ") "
         << PlayerNames[RANK % (sizeof(PlayerNames) / sizeof(*PlayerNames))]
+        << "<" << global_state_name << ">"
         << "\t"
         << oss.str()
         << "\033[0m\n";

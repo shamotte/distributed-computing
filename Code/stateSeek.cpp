@@ -6,9 +6,10 @@ StateSeek::StateSeek(Context *_ctx)
 {
     ctx = _ctx;
 }
-
+extern std::string global_state_name;
 void StateSeek::Logic()
 {
+    global_state_name = "SEEK";
     {
         std::unique_lock lock(pls_work);
 
