@@ -4,4 +4,4 @@
 #define TABLE_NUM 1
 #define GAME_NUM 3
 #define SEAT_COUNT 3
-#define MAX_SLEEP 1
+#define MAX_SLEEP 2
