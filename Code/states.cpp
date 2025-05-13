@@ -19,6 +19,7 @@
 
 extern int RANK, SIZE;
 extern unsigned int global_lamport;
+extern unsigned int games_played;
 
 #pragma region BaseState
 
@@ -295,6 +296,7 @@ void StatePlay::Logic()
                               { return this->ctx->end_ready == SEAT_COUNT; });
 
     coutcolor("Gra zakończona!");
+    games_played++;
 
     if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end()))
     {
