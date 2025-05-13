@@ -1,6 +1,6 @@
 #include "state.h"
 
-extern std::lock pls_work;
+extern std::mutex pls_work;
 
 StateSeek::StateSeek(Context *_ctx)
 {
@@ -10,7 +10,7 @@ StateSeek::StateSeek(Context *_ctx)
 void StateSeek::Logic()
 {
     {
-        std::unique_lock(pls_work);
+        std::unique_lock lock(pls_work);
 
         ctx->priority = global_lamport;
         coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");

@@ -30,12 +30,12 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        std::unique_lock(pls_work);
+        std::unique_lock l1(pls_work);
         global_lamport = std::max(global_lamport, d.lamport) + 1;
 
         coutcolor("otrzymano  ", d.priority, "od ", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
 
-        std::unique_lock(ctx->state_mutex);
+        std::unique_lock l2(ctx->state_mutex);
 
         ctx->current_state->ProcessSignal(d);
     }
