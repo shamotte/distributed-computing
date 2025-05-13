@@ -44,11 +44,12 @@ void StatePlay::Logic()
         coutcolor("GAME OVER, GO HOME.", ss.str());
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
+    else
+    {
 
-    coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
-    ctx->cv_gameover.wait(lock, [this]()
-                          { return this->ctx->cv_game_over_flag; });
-
+        // coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
+        ctx->cv_gameover.wait(lock);
+    }
     ctx->cv_game_over_flag = false;
     coutcolor("Gra zakończona!");
     games_played++;
