@@ -103,6 +103,7 @@ void BaseState::ProcessSIG_TABLE(Datatype &d)
 void BaseState::ProcessSIG_END_REQ(Datatype &d)
 {
     ctx->end_ready++;
+    coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
     ctx->cv_game_end_req.notify_all();
 }
 
@@ -318,8 +319,9 @@ void StatePlay::Logic()
     std::mutex x;
     std::unique_lock lock(x);
 
-    ctx->cv_game_end_req.wait(lock, [this]()
-                              { return this->ctx->end_ready == SEAT_COUNT; });
+    ctx->cv_game_end_req.wait(lock, [this](){
+        return this->ctx->end_ready == SEAT_COUNT;
+    });
 
     coutcolor("Wszyscy gotowi do zakończenia!");
 
