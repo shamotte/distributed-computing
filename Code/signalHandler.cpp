@@ -70,6 +70,7 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
     ctx->cv_seek.notify_all();
+	ctx->cv_seek_wake.notify_all();
 
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
