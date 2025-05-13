@@ -32,7 +32,7 @@ void StatePlay::Logic()
             coutcolor("obudzoned");
             return this->ctx->end_ready == SEAT_COUNT; });
     }
-
+    ctx->end_ready = 0;
     coutcolor("Wszyscy gotowi do zakończenia!");
 
     if (RANK == *std::min_element(ctx->companions.begin(), ctx->companions.end()))

@@ -12,7 +12,6 @@ void StateIdle::Logic()
     global_state_name = "IDLE";
     ctx->table_number = -1;
     ctx->companions.clear();
-    ctx->end_ready = 0;
     ctx->chosen_game = -1;
 
     coutcolor("zmienilem stan na IDLE");
