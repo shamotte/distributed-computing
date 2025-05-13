@@ -175,7 +175,7 @@ void StateSeek::Logic()
                                         [this](int b)
                                         { return ctx->priority < b; }); });
 
-    coutcolor(RANK, " wlaskie zakonczyl czekanie");
+    coutcolor(RANK, " Otrzymałem odpowiedzi!");
 
     while (true)
     {
@@ -183,6 +183,7 @@ void StateSeek::Logic()
         auto &queue = ctx->queue;
 
         std::stringstream ss;
+        ss << "STAN KOLEJKI: "
         for (int pos = 0; pos < queue.size(); pos += 1) {
             ss << queue[pos].pid << " ";
             if ((pos + 1) % SEAT_COUNT == 0) {
@@ -213,7 +214,7 @@ void StateSeek::Logic()
                 // Obierz stół
                 for (auto tid : ctx->table_numbers)
                 {
-                    coutcolor("stół", tid);
+                    coutcolor("Inicjuję grę przy stole: ", tid);
                 }
                 ctx->table_number = ctx->table_numbers[table_index];
 
@@ -251,7 +252,7 @@ void StateSeek::Logic()
         }
 
         // Nie znaleziono stołu
-        coutcolor(RANK, " Nie znaleziono.");
+        coutcolor("Nie znaleziono.");
 
         // Zakończ stan jeśli ustawiono na PLAY - failsafe
         if (ctx->next_state == STATE_PLAY)
