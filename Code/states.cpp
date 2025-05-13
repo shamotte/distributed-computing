@@ -136,7 +136,7 @@ void StateIdle::Logic()
 
     coutcolor("zmienilem stan na IDLE");
     ctx->priority = global_lamport;
-    std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
+    std::this_thread::sleep_for(std::chrono::seconds(float((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP)));
     ctx->next_state = STATE_SEEK;
     return;
 }
@@ -173,7 +173,7 @@ void StateSeek::Logic()
                                         [this](int b)
                                         { return ctx->priority < b; }); });
 
-        coutcolor(RANK, " wlaskie zakonczyl czekanie");
+    coutcolor(RANK, " wlaskie zakonczyl czekanie");
 
     while (true)
     {
@@ -270,7 +270,7 @@ void StatePlay::Logic()
 {
     coutcolor("zmienilem stan na PLAY");
 
-    std::this_thread::sleep_for((MAX_SLEEP > 0)?rand() % MAX_SLEEP : MAX_SLEEP));
+    std::this_thread::sleep_for(float((MAX_SLEEP > 0)?rand() % MAX_SLEEP : MAX_SLEEP)));
 
     for (auto comp : ctx->companions)
     {
