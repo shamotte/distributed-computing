@@ -90,9 +90,7 @@ int main(int argc, char **argv)
 
     Context *ctx = new Context();
 
-    global_context = (void *)ctx;
-
-    std::map<State, BaseState *> &states = ctx->States;
+        std::map<State, BaseState *> &states = ctx->States;
 
     states[STATE_IDLE] = new StateIdle(ctx);
     states[STATE_SEEK] = new StateSeek(ctx);
