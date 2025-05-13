@@ -10,6 +10,8 @@
 #include <set>
 #include <sstream>
 
+#include "state.h"
+
 enum MessageType
 {
     SIG_TABLE_REQ = 0,
