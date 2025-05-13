@@ -173,7 +173,7 @@ void StateSeek::Logic()
                                         [this](int b)
                                         { return ctx->priority < b; }); });
 
-    coutcolor(RANK, " wlaskie zakonczyl czekanie");
+        coutcolor(RANK, " wlaskie zakonczyl czekanie");
 
     while (true)
     {
