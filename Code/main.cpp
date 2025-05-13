@@ -11,8 +11,9 @@
 #include <mpi.h>
 
 #include "config.h"
-#include "functions.h"
+
 #include "state.h"
+#include "functions.h"
 #include "signalSender.h"
 
 MPI_Datatype my_data;
