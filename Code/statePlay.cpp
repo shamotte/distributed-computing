@@ -48,6 +48,7 @@ void StatePlay::Logic()
 
     coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
 
+    global_state_name = "PLAY:END";
     {
         std::unique_lock l1(pls_work);
         ctx->cv_gameover.wait(l1, [this]()
