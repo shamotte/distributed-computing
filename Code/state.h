@@ -53,12 +53,12 @@ public:
     std::condition_variable cv_gameover;
     bool cv_game_over_flag = false;
 
-        std::vector<QueuePosition> queue = {};
+    std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
     int table_number = 0;
     std::set<int> companions = {};
-    int end_ready = 0;
+    volatile int end_ready = 0;
     int chosen_game = 0;
     unsigned int players_acknowledged[PLAYER_NUM] = {};
 
