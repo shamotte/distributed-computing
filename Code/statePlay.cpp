@@ -26,9 +26,10 @@ void StatePlay::Logic()
     std::mutex x;
     std::unique_lock lock(x);
 
+    global_state_name = "PLAY:WAIT";
     ctx->cv_game_end_req.wait(lock, [this]()
                               {
-            coutcolor("obudzoned");
+            coutcolor("obudzoned ", ctx->end_ready);
             return this->ctx->end_ready == SEAT_COUNT || ctx->cv_game_over_flag; });
 
     ctx->end_ready = 0;
