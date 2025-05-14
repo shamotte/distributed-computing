@@ -33,7 +33,7 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
         std::unique_lock l1(pls_work);
-        global_lamport = std::max(global_lamport, d.lamport) + 1;
+        global_lamport = (d.lamport > global_lamport ? d.lamport : global_lamport) + 1; // std::max(global_lamport, d.lamport) + 1;
 
         coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
 
