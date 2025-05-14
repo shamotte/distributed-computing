@@ -23,14 +23,13 @@ void StatePlay::Logic()
         Send_SIG_END_REQ(comp);
     }
 
-    std::mutex x;
-    std::unique_lock lock(x);
+    std::unique_lock lock(ctx->play_wait_mutex);
 
     global_state_name = "PLAY:WAIT";
     ctx->cv_game_end_req.wait(lock, [this]()
                               {
-            coutcolor("obudzoned ", ctx->end_ready);
-            return this->ctx->end_ready >= SEAT_COUNT || ctx->cv_game_over_flag; });
+                                coutcolor("obudzoned ", ctx->end_ready);
+                                return this->ctx->end_ready >= SEAT_COUNT || ctx->cv_game_over_flag; });
 
     ctx->end_ready = 0;
     coutcolor("Wszyscy gotowi do zakończenia!");

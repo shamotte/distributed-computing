@@ -56,6 +56,8 @@ public:
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
+    std::mutex play_wait_mutex;
+
     int table_number = 0;
     std::set<int> companions = {};
     volatile int end_ready = 0;

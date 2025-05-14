@@ -96,6 +96,7 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 
 void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
 {
+    std::unique_lock lock(ctx->play_wait_mutex);
     ctx->end_ready++;
     coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
     ctx->cv_game_end_req.notify_all();
