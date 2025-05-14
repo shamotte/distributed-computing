@@ -15,7 +15,7 @@
 #include <mpi.h>
 
 extern int RANK, SIZE;
-extern unsigned int global_lamport;
+extern volatile unsigned int global_lamport;
 extern MPI_Datatype my_data;
 
 void check_thread_support(int provided)
