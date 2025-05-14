@@ -30,7 +30,7 @@ void StatePlay::Logic()
     ctx->cv_game_end_req.wait(lock, [this]()
                               {
             coutcolor("obudzoned ", ctx->end_ready);
-            return this->ctx->end_ready == SEAT_COUNT || ctx->cv_game_over_flag; });
+            return this->ctx->end_ready > SEAT_COUNT || ctx->cv_game_over_flag; });
 
     ctx->end_ready = 0;
     coutcolor("Wszyscy gotowi do zakończenia!");
