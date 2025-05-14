@@ -18,7 +18,7 @@
 #include <algorithm>
 
 extern int RANK, SIZE;
-extern unsigned int global_lamport;
+extern volatile unsigned int global_lamport;
 extern unsigned int games_played;
 
 void BaseState::ProcessSignal(MPIMessage &d)

@@ -49,7 +49,7 @@ struct MPIMessage
 void check_thread_support(int provided);
 
 extern int RANK, SIZE;
-extern unsigned int global_lamport;
+extern volatile unsigned int global_lamport;
 extern unsigned int games_played;
 extern std::string global_state_name;
 

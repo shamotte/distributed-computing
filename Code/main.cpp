@@ -16,7 +16,7 @@
 #include "signalSender.h"
 
 MPI_Datatype my_data;
-unsigned int global_lamport;
+unsigned volatile unsigned int global_lamport;
 int RANK, SIZE;
 unsigned int games_played;
 

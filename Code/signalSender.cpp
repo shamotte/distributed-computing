@@ -16,13 +16,13 @@
 #include <mpi.h>
 
 extern int RANK, SIZE;
-extern unsigned int global_lamport;
+extern volatile unsigned int global_lamport;
 extern MPI_Datatype my_data;
 extern std::mutex pls_work;
 
 void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 {
-    std::unique_lock lock(pls_work);
+
     global_lamport++;
 
     MPIMessage d;
@@ -42,7 +42,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 
 void Send_SIG_SIG_TABLE_ACK(int dest)
 {
-    std::unique_lock lock(pls_work);
+
     global_lamport++;
 
     MPIMessage d;
@@ -55,7 +55,7 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
-    std::unique_lock lock(pls_work);
+
     global_lamport++;
 
     MPIMessage d;
@@ -73,7 +73,7 @@ void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int ch
 
 void Send_SIG_END_REQ(int dest)
 {
-    std::unique_lock lock(pls_work);
+
     global_lamport++;
 
     MPIMessage d;
@@ -88,7 +88,7 @@ void Send_SIG_END_REQ(int dest)
 
 void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
 {
-    std::unique_lock lock(pls_work);
+
     global_lamport++;
 
     MPIMessage d;
