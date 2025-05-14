@@ -37,7 +37,7 @@ void StateSeek::Logic()
 			[this](int b){ return ctx->priority < b; }
 		); });
 
-    coutcolor(RANK, " Otrzymałem odpowiedzi!");
+    coutcolor(" Otrzymałem odpowiedzi!");
 
     while (true)
     {

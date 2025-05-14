@@ -53,7 +53,7 @@ public:
     std::condition_variable cv_gameover;
     bool cv_game_over_flag = false;
 
-    std::vector<QueuePosition> queue = {};
+        std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
     int table_number = 0;
