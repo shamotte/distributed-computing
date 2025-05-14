@@ -127,6 +127,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 
     ctx->cv_seek_wake.notify_all();
+    ctx->cv_game_end_req.notify_all();
 
     if (d.table_number == ctx->table_number)
     {
