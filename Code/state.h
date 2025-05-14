@@ -51,7 +51,7 @@ public:
     std::condition_variable cv_seek_wake;
     std::condition_variable cv_game_end_req;
     std::condition_variable cv_gameover;
-    bool cv_game_over_flag = false;
+    volatile bool cv_game_over_flag = false;
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
