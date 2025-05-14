@@ -22,6 +22,7 @@ extern std::mutex pls_work;
 
 void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 {
+    std::unique_lock lock(pls_work);
     global_lamport++;
 
     MPIMessage d;
