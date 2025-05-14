@@ -25,7 +25,7 @@ void StatePlay::Logic()
 
     std::mutex x;
     std::unique_lock lock(x);
-
+    ctx->cv_game_over_flag = false;
     ctx->cv_game_end_req.wait(lock, [this]()
                               {
             coutcolor("obudzoned");
