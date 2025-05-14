@@ -133,6 +133,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     if (d.table_number == ctx->table_number)
     {
         ctx->cv_game_over_flag = true;
+        coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
         ctx->cv_gameover.notify_all();
     }
 }

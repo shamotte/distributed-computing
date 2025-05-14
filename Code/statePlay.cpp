@@ -56,6 +56,7 @@ void StatePlay::Logic()
     }
 
     ctx->cv_game_over_flag = false;
+    coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
     coutcolor("Gra zakończona!");
     games_played++;
 
