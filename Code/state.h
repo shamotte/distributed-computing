@@ -56,7 +56,11 @@ public:
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
+    std::mutex seek_mutex;
+    std::mutex seek_wake_mutex;
+
     std::mutex play_wait_mutex;
+    std::mutex play_end_mutex;
 
     int table_number = 0;
     std::set<int> companions = {};

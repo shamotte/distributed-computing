@@ -61,21 +61,25 @@ void BaseState::ProcessSignal(MPIMessage &d)
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
-    std::vector<QueuePosition> &queue = ctx->queue;
-    ctx->queue.insert(
-        std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
-                     { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
-        QueuePosition{d.pid, d.priority, d.vote});
+    {
+        std::unique_lock lock(ctx->seek_mutex);
+        std::vector<QueuePosition> &queue = ctx->queue;
+        ctx->queue.insert(
+            std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
+                         { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
+            QueuePosition{d.pid, d.priority, d.vote});
 
-    ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
+        ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
-    ctx->cv_seek.notify_all();
+        ctx->cv_seek.notify_all();
+    }
 
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 {
+    std::unique_lock lock(ctx->seek_mutex);
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
 }

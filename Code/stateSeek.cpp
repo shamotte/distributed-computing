@@ -18,19 +18,17 @@ void StateSeek::Logic()
 
         Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
     }
-
-    std::mutex x;
-    std::unique_lock lock(x);
-
+    std::unique_lock lock(ctx->seek_mutex);
     ctx->cv_seek.wait(lock, [this]()
                       { 
+                        
 		std::stringstream ss;
 		ss<<"M: "<< (ctx->priority)<<" , ";
 		for(int b : ctx->players_acknowledged) {
 			ss<<b<<" ";
 		}
 		coutcolor(ss.str());
-
+        
 		return std::all_of(
 			this->ctx->players_acknowledged,
 			this->ctx->players_acknowledged + PLAYER_NUM,
@@ -128,7 +126,9 @@ void StateSeek::Logic()
             return;
         }
 
-        ctx->cv_seek_wake.wait(lock);
+        std::unique_lock lock(ctx->seek_wake_mutex);
+        ctx->cv_seek_wake.wait(lock, [this]()
+                               { this->ctx->next_state == STATE_PLAY });
 
         // Zakończ stan jeśli ustawiono na PLAY
         if (ctx->next_state == STATE_PLAY)
