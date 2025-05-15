@@ -128,7 +128,7 @@ void StateSeek::Logic()
 
         std::unique_lock lock(ctx->seek_wake_mutex);
         ctx->cv_seek_wake.wait(lock, [this]()
-                               { return this->ctx->next_state == STATE_PLAY });
+                               { return this->ctx->next_state == STATE_PLAY; });
 
         // Zakończ stan jeśli ustawiono na PLAY
         if (ctx->next_state == STATE_PLAY)
