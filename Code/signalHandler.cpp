@@ -80,9 +80,19 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
         if (x.second > 1)
         {
             coutcolor("PODWUJNA LICBA W KOLEJCE");
-            exit(1);
         }
     }
+    std::stringstream ss;
+    ss << "STAN KOLEJKI: ";
+    for (int pos = 0; pos < queue.size(); pos += 1)
+    {
+        ss << queue[pos].pid << " ";
+        if ((pos + 1) % SEAT_COUNT == 0)
+        {
+            ss << "|";
+        }
+    }
+    coutcolor(ss.str());
 
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
