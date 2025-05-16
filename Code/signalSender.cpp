@@ -35,7 +35,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 
     for (int i = 0; i < SIZE; i++)
     {
-
+        coutcolor("Broadcastuje table req do ", i);
         MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
     }
 }
@@ -43,6 +43,7 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 void Send_SIG_SIG_TABLE_ACK(int dest)
 {
 
+    coutcolor("wysylam table ack do", dest);
     global_lamport++;
 
     MPIMessage d;
@@ -55,8 +56,8 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
-
-    global_lamport++;
+    coutcolor("wysyłam sig table do", dest)
+        global_lamport++;
 
     MPIMessage d;
     d.type = SIG_TABLE;
