@@ -56,8 +56,8 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
-    coutcolor("wysyłam sig table do", dest)
-        global_lamport++;
+    coutcolor("wysyłam sig table do", dest);
+    global_lamport++;
 
     MPIMessage d;
     d.type = SIG_TABLE;
