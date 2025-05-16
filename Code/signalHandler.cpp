@@ -145,6 +145,15 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     std::remove_if(tables.begin(), tables.end(), [&d](int t)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 
+    if (ctx->current_state != ctx->States[STATE_IDLE])
+    {
+        if (std::find(queue.begin(), queue.end(), RANK) == queue.end())
+        {
+            colorcout("SELF NOT IN QUEUE");
+            exit(1);
+        }
+    }
+
     ctx->cv_seek_wake.notify_all();
     ctx->cv_game_end_req.notify_all();
 
