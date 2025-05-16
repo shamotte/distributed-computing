@@ -147,7 +147,8 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
 
     if (ctx->current_state != ctx->States[STATE_IDLE])
     {
-        if (std::find(queue.begin(), queue.end(), RANK) == queue.end())
+        if (std::find_if(queue.begin(), queue.end(), [](QueuePosition pos)
+                         { return pos == RANK }) == queue.end())
         {
             coutcolor("SELF NOT IN QUEUE");
         }
