@@ -62,11 +62,27 @@ void BaseState::ProcessSignal(MPIMessage &d)
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
     std::unique_lock lock(ctx->mt_seek);
+
     std::vector<QueuePosition> &queue = ctx->queue;
     ctx->queue.insert(
         std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
                      { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
         QueuePosition{d.pid, d.priority, d.vote});
+
+    std::map<int, int> occurances;
+    for (int i : queue)
+    {
+        occurances[i]++;
+    }
+
+    for (auto x : occurances)
+    {
+        if (x.second > 1)
+        {
+            coutcolor("PODWUJNA LICBA W KOLEJCE");
+            exit(1);
+        }
+    }
 
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
