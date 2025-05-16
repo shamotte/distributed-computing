@@ -149,7 +149,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     {
         if (std::find(queue.begin(), queue.end(), RANK) == queue.end())
         {
-            colorcout("SELF NOT IN QUEUE");
+            coutcolor("SELF NOT IN QUEUE");
         }
     }
 
