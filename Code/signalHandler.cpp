@@ -70,9 +70,9 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
         QueuePosition{d.pid, d.priority, d.vote});
 
     std::map<int, int> occurances;
-    for (int i : queue)
+    for (QueuePosition i : queue)
     {
-        occurances[i]++;
+        occurances[i.pid]++;
     }
 
     for (auto x : occurances)
