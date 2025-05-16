@@ -23,7 +23,7 @@ void StatePlay::Logic()
         Send_SIG_END_REQ(comp);
     }
 
-    std::unique_lock lock(ctx->play_wait_mutex);
+    std::unique_lock lock(ctx->mt_play_end_req);
 
     global_state_name = "PLAY:WAIT";
     ctx->cv_game_end_req.wait(lock, [this]()

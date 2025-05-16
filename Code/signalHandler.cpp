@@ -61,6 +61,7 @@ void BaseState::ProcessSignal(MPIMessage &d)
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
+    std::unique_lock lock(ctx->mt_seek);
     std::vector<QueuePosition> &queue = ctx->queue;
     ctx->queue.insert(
         std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
@@ -76,6 +77,7 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 {
+    std::unique_lock lock(ctx->mt_seek);
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
 }
@@ -96,7 +98,7 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 
 void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
 {
-    std::unique_lock lock(ctx->play_wait_mutex);
+    std::unique_lock lock(ctx->mt_play_end_req);
     ctx->end_ready++;
     coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
     ctx->cv_game_end_req.notify_all();

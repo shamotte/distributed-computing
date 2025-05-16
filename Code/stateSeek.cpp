@@ -19,8 +19,7 @@ void StateSeek::Logic()
         Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
     }
 
-    std::mutex x;
-    std::unique_lock lock(x);
+    std::unique_lock lock(ctx->mt_seek);
 
     ctx->cv_seek.wait(lock, [this]()
                       { 
@@ -30,6 +29,7 @@ void StateSeek::Logic()
 			ss<<b<<" ";
 		}
 		coutcolor(ss.str());
+
 
 		return std::all_of(
 			this->ctx->players_acknowledged,
