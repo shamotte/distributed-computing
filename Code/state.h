@@ -53,6 +53,8 @@ public:
     std::condition_variable cv_gameover;
     volatile bool cv_game_over_flag = false;
 
+    volatile bool cv_new_table_req_flag = true;
+
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 
@@ -60,7 +62,7 @@ public:
 
     std::mutex mt_seek;
 
-        int table_number = 0;
+    int table_number = 0;
     std::set<int> companions = {};
     volatile int end_ready = 0;
     int chosen_game = 0;

@@ -97,6 +97,8 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
     ctx->cv_seek.notify_all();
+    ctx->cv_seek_wake.notify_all();
+    ctx->cv_new_table_req_flag = true;
 
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
@@ -106,6 +108,7 @@ void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
     std::unique_lock lock(ctx->mt_seek);
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
+    ctx->cv_new_table_req_flag = true;
 }
 
 void BaseState::ProcessSIG_TABLE(MPIMessage &d)
