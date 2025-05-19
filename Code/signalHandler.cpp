@@ -44,55 +44,63 @@ void BaseState::ProcessSignal(MPIMessage &d)
         break;
     }
 
-    auto &queue = ctx->queue;
-
-    std::stringstream ss;
-    ss << "STAN KOLEJKI: ";
-    for (int pos = 0; pos < queue.size(); pos += 1)
     {
-        ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
-        if ((pos + 1) % SEAT_COUNT == 0)
+        std::unique_lock lock(ctx->mt_queue);
+
+        auto &queue = ctx->queue;
+
+        std::stringstream ss;
+        ss << "STAN KOLEJKI: ";
+        for (int pos = 0; pos < queue.size(); pos += 1)
         {
-            ss << "|";
+            ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
+                ss << "|";
+            }
         }
+        coutcolor(ss.str());
     }
-    coutcolor(ss.str());
 }
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
     std::unique_lock lock(ctx->mt_seek);
 
-    std::vector<QueuePosition> &queue = ctx->queue;
-    ctx->queue.insert(
-        std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
-                     { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
-        QueuePosition{d.pid, d.priority, d.vote});
+    {
+        std::unique_lock lock(ctx->mt_queue);
 
-    std::map<int, int> occurances;
-    for (QueuePosition i : queue)
-    {
-        occurances[i.pid]++;
-    }
+        std::vector<QueuePosition> &queue = ctx->queue;
+        ctx->queue.insert(
+            std::find_if(queue.begin(), queue.end(), [&d](QueuePosition p)
+                        { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
+            QueuePosition{d.pid, d.priority, d.vote});
 
-    for (auto x : occurances)
-    {
-        if (x.second > 1)
+        std::map<int, int> occurances;
+        for (QueuePosition i : queue)
         {
-            coutcolor("PODWUJNA LICBA W KOLEJCE");
+            occurances[i.pid]++;
         }
-    }
-    std::stringstream ss;
-    ss << "STAN KOLEJKI: ";
-    for (int pos = 0; pos < queue.size(); pos += 1)
-    {
-        ss << queue[pos].pid << " ";
-        if ((pos + 1) % SEAT_COUNT == 0)
+
+        for (auto x : occurances)
         {
-            ss << "|";
+            if (x.second > 1)
+            {
+                coutcolor("PODWUJNA LICBA W KOLEJCE");
+            }
         }
+        std::stringstream ss;
+        ss << "STAN KOLEJKI: ";
+        for (int pos = 0; pos < queue.size(); pos += 1)
+        {
+            ss << queue[pos].pid << " ";
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
+                ss << "|";
+            }
+        }
+        coutcolor(ss.str());
     }
-    coutcolor(ss.str());
 
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
@@ -149,31 +157,35 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     }
     coutcolor(ss.str());
 
-    std::vector<QueuePosition> &queue = ctx->queue;
-    // queue.erase(
-    //     std::remove_if(queue.begin(),
-    //                    queue.end(),
-    //                    [&companions, &d](QueuePosition p)
-    //                    { return (companions.find(p.pid) != companions.end()) && (p.priority < d.lamport); }),
-    //     queue.end()); // usuwamy gaczy z kolejki
-
-    for (int companion : companions)
     {
-        queue.erase(std::find_if(queue.begin(), queue.end(), [companion, &d](QueuePosition pos)
-                                 { return (pos.pid == companion) && (pos.priority < d.lamport); }));
-    }
+        std::unique_lock lock(ctx->mt_queue);
 
-    std::vector<int> &tables = ctx->table_numbers;
+        std::vector<QueuePosition> &queue = ctx->queue;
+        // queue.erase(
+        //     std::remove_if(queue.begin(),
+        //                    queue.end(),
+        //                    [&companions, &d](QueuePosition p)
+        //                    { return (companions.find(p.pid) != companions.end()) && (p.priority < d.lamport); }),
+        //     queue.end()); // usuwamy gaczy z kolejki
 
-    std::remove_if(tables.begin(), tables.end(), [&d](int t)
-                   { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
-
-    if (ctx->current_state != ctx->States[STATE_IDLE])
-    {
-        if (std::find_if(queue.begin(), queue.end(), [](QueuePosition pos)
-                         { return pos.pid == RANK; }) == queue.end())
+        for (int companion : companions)
         {
-            coutcolor("SELF NOT IN QUEUE");
+            queue.erase(std::find_if(queue.begin(), queue.end(), [companion, &d](QueuePosition pos)
+                                    { return (pos.pid == companion) && (pos.priority < d.lamport); }));
+        }
+
+        std::vector<int> &tables = ctx->table_numbers;
+
+        std::remove_if(tables.begin(), tables.end(), [&d](int t)
+                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
+
+        if (ctx->current_state != ctx->States[STATE_IDLE])
+        {
+            if (std::find_if(queue.begin(), queue.end(), [](QueuePosition pos)
+                            { return pos.pid == RANK; }) == queue.end())
+            {
+                coutcolor("SELF NOT IN QUEUE");
+            }
         }
     }
 
