@@ -146,12 +146,18 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     coutcolor(ss.str());
 
     std::vector<QueuePosition> &queue = ctx->queue;
-    queue.erase(
-        std::remove_if(queue.begin(),
-                       queue.end(),
-                       [&companions, &d](QueuePosition p)
-                       { return (companions.find(p.pid) != companions.end()) && (p.priority < d.lamport); }),
-        queue.end()); // usuwamy gaczy z kolejki
+    // queue.erase(
+    //     std::remove_if(queue.begin(),
+    //                    queue.end(),
+    //                    [&companions, &d](QueuePosition p)
+    //                    { return (companions.find(p.pid) != companions.end()) && (p.priority < d.lamport); }),
+    //     queue.end()); // usuwamy gaczy z kolejki
+
+    for (int companion : companions)
+    {
+        queue.erase(std::find_if(queue.begin(), queue.end(), [= companion, &d](QueuePosition pos)
+                                 { return (pos.pid == companion) && (pos.priority < d.lamport); }));
+    }
 
     std::vector<int> &tables = ctx->table_numbers;
 
