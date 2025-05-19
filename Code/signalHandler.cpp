@@ -113,6 +113,9 @@ void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 
 void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 {
+
+    std::unique_lock lock(ctx->mt_seek);
+
     ctx->table_number = d.table_number;
     ctx->chosen_game = d.chosen_game;
 
