@@ -155,7 +155,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
 
     for (int companion : companions)
     {
-        queue.erase(std::find_if(queue.begin(), queue.end(), [= companion, &d](QueuePosition pos)
+        queue.erase(std::find_if(queue.begin(), queue.end(), [companion, &d](QueuePosition pos)
                                  { return (pos.pid == companion) && (pos.priority < d.lamport); }));
     }
 
