@@ -121,6 +121,7 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
         d.players,
         d.players + SEAT_COUNT);
 
+    ctx->cv_new_table_req_flag = true;
     ctx->next_state = STATE_PLAY;
     ctx->cv_seek_wake.notify_all();
 }
