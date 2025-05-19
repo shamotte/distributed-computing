@@ -39,6 +39,7 @@ void StateSeek::Logic()
 
     coutcolor(" Otrzymałem odpowiedzi!");
 
+    ctx->cv_new_table_req_flag = false;
     while (true)
     {
 
@@ -128,7 +129,9 @@ void StateSeek::Logic()
             return;
         }
 
-        ctx->cv_seek_wake.wait(lock);
+        ctx->cv_seek_wake.wait(lock, [this]()
+                               { return this->ctx->cv_new_table_req_flag; });
+        ctx->cv_new_table_req_flag = false;
 
         // Zakończ stan jeśli ustawiono na PLAY
         if (ctx->next_state == STATE_PLAY)
