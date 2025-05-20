@@ -45,7 +45,7 @@ void BaseState::ProcessSignal(MPIMessage &d)
     }
 
     {
-        std::unique_lock lock(ctx->mt_queue);
+        std::unique_lock queuelock(ctx->mt_queue);
 
         auto &queue = ctx->queue;
 
@@ -68,7 +68,7 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
     std::unique_lock lock(ctx->mt_seek);
 
     {
-        std::unique_lock lock(ctx->mt_queue);
+        std::unique_lock queuelock(ctx->mt_queue);
 
         std::vector<QueuePosition> &queue = ctx->queue;
         ctx->queue.insert(
@@ -158,7 +158,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     coutcolor(ss.str());
 
     {
-        std::unique_lock lock(ctx->mt_queue);
+        std::unique_lock queuelock(ctx->mt_queue);
 
         std::vector<QueuePosition> &queue = ctx->queue;
         // queue.erase(
