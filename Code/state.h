@@ -55,7 +55,7 @@ public:
 
     volatile bool cv_new_table_req_flag = true;
 
-    std::recursive_mutex mt_queue;
+    std::mutex mt_queue;
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
 

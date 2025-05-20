@@ -44,7 +44,23 @@ void BaseState::ProcessSignal(MPIMessage &d)
         break;
     }
 
-    
+    {
+        std::unique_lock queuelock(ctx->mt_queue);
+
+        auto &queue = ctx->queue;
+
+        std::stringstream ss;
+        ss << "STAN KOLEJKI: ";
+        for (int pos = 0; pos < queue.size(); pos += 1)
+        {
+            ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
+                ss << "|";
+            }
+        }
+        coutcolor(ss.str());
+    }
 }
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
