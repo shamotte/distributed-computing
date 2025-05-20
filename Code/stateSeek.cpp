@@ -44,7 +44,7 @@ void StateSeek::Logic()
     {
 
         coutcolor("----- SPRAWDZAM WEJŚCIE -----");
-
+        bool can_start = false;
         {
             coutcolor("LOCKING mt_queue StateSeek::Logic");
             std::unique_lock queuelock(ctx->mt_queue);
@@ -78,49 +78,49 @@ void StateSeek::Logic()
 
                 bool is_last = RANK == queue[last_player_index].pid;
                 // coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
-                if (is_last)
+                if (is_last) can_start = true;
+            }
+        }
+
+        if (can_start) {
+            // Obierz stół
+            for (auto tid : ctx->table_numbers)
+            {
+                coutcolor("Inicjuję grę przy stole: ", tid);
+            }
+            ctx->table_number = ctx->table_numbers[table_index];
+
+            // Wykryj współgraczy
+            ctx->companions.clear();
+            for (int i = first_player_index; i <= last_player_index; i++)
+            {
+                ctx->companions.insert(queue[i].pid);
+            }
+
+            // Zlicz głosy
+            int votes[SEAT_COUNT] = {};
+            for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++)
+            {
+                votes[queue[i].vote]++;
+            }
+
+            // Indeks o największej liczbie głosów
+            int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
+            ctx->chosen_game = chosen_game;
+
+            // Wysłanie SIG_TABLE
+            for (auto comp : ctx->companions)
+            {
+                if (comp != RANK)
                 {
-
-                    // Obierz stół
-                    for (auto tid : ctx->table_numbers)
-                    {
-                        coutcolor("Inicjuję grę przy stole: ", tid);
-                    }
-                    ctx->table_number = ctx->table_numbers[table_index];
-
-                    // Wykryj współgraczy
-                    ctx->companions.clear();
-                    for (int i = first_player_index; i <= last_player_index; i++)
-                    {
-                        ctx->companions.insert(queue[i].pid);
-                    }
-
-                    // Zlicz głosy
-                    int votes[SEAT_COUNT] = {};
-                    for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++)
-                    {
-                        votes[queue[i].vote]++;
-                    }
-
-                    // Indeks o największej liczbie głosów
-                    int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
-                    ctx->chosen_game = chosen_game;
-
-                    // Wysłanie SIG_TABLE
-                    for (auto comp : ctx->companions)
-                    {
-                        if (comp != RANK)
-                        {
-                            Send_SIG_TABLE(comp, ctx->companions, ctx->table_number, chosen_game);
-                        }
-                    }
-
-                    // Własne przejście do stanu gry
-                    ctx->next_state = STATE_PLAY;
-                    coutcolor("PLAY INITIALIZER");
-                    return;
+                    Send_SIG_TABLE(comp, ctx->companions, ctx->table_number, chosen_game);
                 }
             }
+
+            // Własne przejście do stanu gry
+            ctx->next_state = STATE_PLAY;
+            coutcolor("PLAY INITIALIZER");
+            return;
         }
 
         // Nie znaleziono stołu
