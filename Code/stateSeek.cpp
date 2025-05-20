@@ -46,6 +46,7 @@ void StateSeek::Logic()
         coutcolor("----- SPRAWDZAM WEJŚCIE -----");
 
         {
+            coutcolor("LOCKING mt_queue");
             std::unique_lock queuelock(ctx->mt_queue);
             auto &queue = ctx->queue;
 
