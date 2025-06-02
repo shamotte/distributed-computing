@@ -24,6 +24,8 @@ extern unsigned int games_played;
 void BaseState::ProcessSignal(MPIMessage &d)
 {
 
+    randSleep();
+
     switch (d.type)
     {
 

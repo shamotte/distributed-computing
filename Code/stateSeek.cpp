@@ -19,6 +19,8 @@ void StateSeek::Logic()
         Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
     }
 
+    randSleep();
+
     std::unique_lock lock(ctx->mt_seek);
 
     ctx->cv_seek.wait(lock, [this]()
@@ -38,6 +40,8 @@ void StateSeek::Logic()
 		); });
 
     coutcolor(" Otrzymałem odpowiedzi!");
+
+    randSleep();
 
     ctx->cv_new_table_req_flag = false;
     while (true)
@@ -84,6 +88,8 @@ void StateSeek::Logic()
                     coutcolor("Inicjuję grę przy stole: ", tid);
                 }
                 ctx->table_number = ctx->table_numbers[table_index];
+
+                randSleep();
 
                 // Wykryj współgraczy
                 ctx->companions.clear();
