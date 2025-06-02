@@ -16,7 +16,7 @@ void StateIdle::Logic()
 
     coutcolor("zmienilem stan na IDLE");
 
-    std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
+    randSleep();
     ctx->next_state = STATE_SEEK;
     return;
 }

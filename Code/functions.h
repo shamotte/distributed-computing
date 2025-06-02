@@ -93,3 +93,10 @@ void coutcolor(Args &&...args)
         << oss.str()
         << "\033[0m\n";
 }
+
+inline void randSleep() {
+    if (MAX_SLEEP_MS > 0) {
+        int ms = rand() % (MAX_SLEEP_MS + 1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+    }
+}

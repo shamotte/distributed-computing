@@ -16,7 +16,7 @@ void StatePlay::Logic()
     }
     coutcolor("zmienilem stan na PLAY - ", ss.str());
 
-    std::this_thread::sleep_for(std::chrono::seconds((MAX_SLEEP > 0) ? rand() % MAX_SLEEP : MAX_SLEEP));
+    randSleep();
 
     for (auto comp : ctx->companions)
     {
@@ -59,6 +59,8 @@ void StatePlay::Logic()
     coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
     coutcolor("Gra zakończona!");
     games_played++;
+
+    randSleep();
 
     ctx->next_state = STATE_IDLE;
     return;
