@@ -16,21 +16,28 @@ void StateSeek::Logic()
         ctx->priority = global_lamport;
         coutcolor("zmienilem stan na SEEK (priority: ", ctx->priority, ")");
 
-        Broadcast_SIG_TABLE_REQ(ctx->priority, rand() % GAME_NUM);
+        int game = rand() % GAME_NUM;
+        coutcolor(" Glosuje na: ", game);
+        Broadcast_SIG_TABLE_REQ(ctx->priority, game);
     }
 
     randSleep();
+
+    coutcolor("Czekam na odpowiedzi innych...");
 
     std::unique_lock lock(ctx->mt_seek);
 
     ctx->cv_seek.wait(lock, [this]()
                       { 
-		std::stringstream ss;
-		ss<<"M: "<< (ctx->priority)<<" , ";
-		for(int b : ctx->players_acknowledged) {
-			ss<<b<<" ";
-		}
-		coutcolor(ss.str());
+
+        if (DEBUG) {
+            std::stringstream ss;
+            ss<<"M: "<< (ctx->priority)<<" , ";
+            for(int b : ctx->players_acknowledged) {
+                ss<<b<<" ";
+            }
+            coutcolor(ss.str());
+        }
 
 
 		return std::all_of(
@@ -47,21 +54,26 @@ void StateSeek::Logic()
     while (true)
     {
 
-        coutcolor("----- SPRAWDZAM WEJŚCIE -----");
+        if (DEBUG) {
+            coutcolor("----- SPRAWDZAM WEJŚCIE -----");
+        }
 
         auto &queue = ctx->queue;
 
-        std::stringstream ss;
-        ss << "STAN KOLEJKI: ";
-        for (int pos = 0; pos < queue.size(); pos += 1)
-        {
-            ss << queue[pos].pid << " ";
-            if ((pos + 1) % SEAT_COUNT == 0)
+        if (DEBUG) {
+            
+            std::stringstream ss;
+            ss << "STAN KOLEJKI: ";
+            for (int pos = 0; pos < queue.size(); pos += 1)
             {
-                ss << "|";
+                ss << queue[pos].pid << " ";
+                if ((pos + 1) % SEAT_COUNT == 0)
+                {
+                    ss << "|";
+                }
             }
+            coutcolor(ss.str());
         }
-        coutcolor(ss.str());
 
         for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT)
         {
@@ -83,11 +95,8 @@ void StateSeek::Logic()
             {
 
                 // Obierz stół
-                for (auto tid : ctx->table_numbers)
-                {
-                    coutcolor("Inicjuję grę przy stole: ", tid);
-                }
                 ctx->table_number = ctx->table_numbers[table_index];
+                coutcolor("Inicjuję grę przy stole: ", ctx->table_number);
 
                 randSleep();
 
@@ -120,29 +129,32 @@ void StateSeek::Logic()
 
                 // Własne przejście do stanu gry
                 ctx->next_state = STATE_PLAY;
-                coutcolor("PLAY INITIALIZER");
+                coutcolor("Rozpoczynam grę dla innych!");
                 return;
             }
         }
 
         // Nie znaleziono stołu
-        coutcolor("Nie znaleziono.");
+        coutcolor("Nie znaleziono stołu - czekam.");
 
         // Zakończ stan jeśli ustawiono na PLAY - failsafe
-        if (ctx->next_state == STATE_PLAY)
+        if (ctx->cv_new_table_req_flag)
         {
-            coutcolor("PLAY 1");
+            ctx->next_state == STATE_PLAY;
+            coutcolor("Rozpoczynam grę przy stole: ", ctx->table_number);
+            ctx->cv_new_table_req_flag = false;
             return;
         }
 
         ctx->cv_seek_wake.wait(lock, [this]()
                                { return this->ctx->cv_new_table_req_flag; });
-        ctx->cv_new_table_req_flag = false;
 
         // Zakończ stan jeśli ustawiono na PLAY
-        if (ctx->next_state == STATE_PLAY)
+        if (ctx->cv_new_table_req_flag)
         {
-            coutcolor("PLAY 2");
+            ctx->next_state == STATE_PLAY;
+            coutcolor("Rozpoczynam grę przy stole: ", ctx->table_number);
+            ctx->cv_new_table_req_flag = false;
             return;
         }
     }

@@ -35,15 +35,19 @@ void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 
     for (int i = 0; i < SIZE; i++)
     {
-        coutcolor("Broadcastuje table req do ", i);
+        if (DEBUG) {
+            coutcolor("Broadcastuje table req do ", i);
+        }
         MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
     }
 }
 
 void Send_SIG_SIG_TABLE_ACK(int dest)
 {
+    if (DEBUG) {
+        coutcolor("wysylam table ack do", dest);
+    }
 
-    coutcolor("wysylam table ack do", dest);
     global_lamport++;
 
     MPIMessage d;
@@ -56,7 +60,10 @@ void Send_SIG_SIG_TABLE_ACK(int dest)
 
 void Send_SIG_TABLE(int dest, std::set<int> companions, int table_number, int chosen_game)
 {
-    coutcolor("wysyłam sig table do", dest);
+    if (DEBUG) {
+        coutcolor("wysyłam sig table do", dest);
+    }
+
     global_lamport++;
 
     MPIMessage d;
@@ -83,7 +90,10 @@ void Send_SIG_END_REQ(int dest)
     d.pid = RANK;
 
     MPI_Send(&d, 1, my_data, dest, 0, MPI_COMM_WORLD);
-    coutcolor("wysylam SIG_END_REQ do ", dest);
+
+    if (DEBUG) {
+        coutcolor("wysylam SIG_END_REQ do ", dest);
+    }
 
 } // zgłoszenie gotowości do zakończenia gry
 
@@ -105,6 +115,9 @@ void Broadcast_SIG_GAME_END(std::set<int> players, int table_number)
     {
 
         MPI_Send(&d, 1, my_data, i, 0, MPI_COMM_WORLD);
-        coutcolor("wysylam SIG_GAME_END do ", i);
+
+        if (DEBUG) {
+            coutcolor("wysylam SIG_GAME_END do ", i);
+        }
     }
 }

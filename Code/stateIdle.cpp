@@ -17,6 +17,9 @@ void StateIdle::Logic()
     coutcolor("zmienilem stan na IDLE");
 
     randSleep();
+
+    coutcolor("Zacznę szukać...");
+
     ctx->next_state = STATE_SEEK;
     return;
 }

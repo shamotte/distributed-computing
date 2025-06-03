@@ -35,7 +35,9 @@ void SignalProcesingLoop(Context *ctx)
         std::unique_lock l1(pls_work);
         global_lamport = (d.lamport > global_lamport ? d.lamport : global_lamport) + 1; // std::max(global_lamport, d.lamport) + 1;
 
-        coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
+        if (DEBUG) {
+            coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
+        }
 
         std::unique_lock l2(ctx->state_mutex);
 

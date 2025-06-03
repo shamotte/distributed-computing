@@ -15,8 +15,11 @@ void StatePlay::Logic()
         ss << c << ",";
     }
     coutcolor("zmienilem stan na PLAY - ", ss.str());
+    coutcolor("Gram w grę ", ctx->chosen_game, " przy stole ", ctx->table_number);
 
     randSleep();
+
+    coutcolor("Zgłaszam gotowość do zakończenia!");
 
     for (auto comp : ctx->companions)
     {
@@ -28,7 +31,9 @@ void StatePlay::Logic()
     global_state_name = "PLAY:WAIT";
     ctx->cv_game_end_req.wait(lock, [this]()
                               {
-                                coutcolor("obudzoned ", ctx->end_ready);
+                                if (DEBUG) {
+                                    coutcolor("obudzoned ", ctx->end_ready);
+                                }
                                 return this->ctx->end_ready >= SEAT_COUNT; });
 
     ctx->end_ready = 0;
@@ -42,11 +47,13 @@ void StatePlay::Logic()
             ss << c << ",";
         }
 
-        coutcolor("GAME OVER, GO HOME.", ss.str());
+        coutcolor("Ogłaszam koniec gry przy stole: ", ctx->table_number, " (", ss.str(), ")");
         Broadcast_SIG_GAME_END(ctx->companions, ctx->table_number);
     }
 
-    coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
+    if (DEBUG) {
+        coutcolor("GAME OVER FLAG = ", ctx->cv_game_over_flag);
+    }
 
     global_state_name = "PLAY:END";
     {
@@ -56,8 +63,12 @@ void StatePlay::Logic()
     }
 
     ctx->cv_game_over_flag = false;
-    coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
-    coutcolor("Gra zakończona!");
+
+    if (DEBUG) {
+        coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
+    }
+
+    coutcolor("Gra zakończona! Stół: ", ctx->table_number);
     games_played++;
 
     randSleep();

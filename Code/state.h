@@ -53,7 +53,7 @@ public:
     std::condition_variable cv_gameover;
     volatile bool cv_game_over_flag = false;
 
-    volatile bool cv_new_table_req_flag = true;
+    volatile bool cv_new_table_req_flag = false;
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};

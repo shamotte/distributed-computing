@@ -46,19 +46,21 @@ void BaseState::ProcessSignal(MPIMessage &d)
         break;
     }
 
-    auto &queue = ctx->queue;
+    if (DEBUG) {
+        auto &queue = ctx->queue;
 
-    std::stringstream ss;
-    ss << "STAN KOLEJKI: ";
-    for (int pos = 0; pos < queue.size(); pos += 1)
-    {
-        ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
-        if ((pos + 1) % SEAT_COUNT == 0)
+        std::stringstream ss;
+        ss << "STAN KOLEJKI: ";
+        for (int pos = 0; pos < queue.size(); pos += 1)
         {
-            ss << "|";
+            ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
+                ss << "|";
+            }
         }
+        coutcolor(ss.str());
     }
-    coutcolor(ss.str());
 }
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
@@ -71,36 +73,41 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
                      { return d.priority * SIZE + d.pid < p.priority * SIZE + p.pid; }),
         QueuePosition{d.pid, d.priority, d.vote});
 
-    std::map<int, int> occurances;
-    for (QueuePosition i : queue)
-    {
-        occurances[i.pid]++;
+    if (DEBUG) {
+        std::map<int, int> occurances;
+        for (QueuePosition i : queue)
+        {
+            occurances[i.pid]++;
+        }
+
+        for (auto x : occurances)
+        {
+            if (x.second > 1)
+            {
+                coutcolor("PODWUJNA LICBA W KOLEJCE");
+            }
+        }
     }
 
-    for (auto x : occurances)
-    {
-        if (x.second > 1)
+    if (DEBUG) {
+        std::stringstream ss;
+        ss << "STAN KOLEJKI: ";
+        for (int pos = 0; pos < queue.size(); pos += 1)
         {
-            coutcolor("PODWUJNA LICBA W KOLEJCE");
+            ss << queue[pos].pid << " ";
+            if ((pos + 1) % SEAT_COUNT == 0)
+            {
+                ss << "|";
+            }
         }
+        coutcolor(ss.str());
     }
-    std::stringstream ss;
-    ss << "STAN KOLEJKI: ";
-    for (int pos = 0; pos < queue.size(); pos += 1)
-    {
-        ss << queue[pos].pid << " ";
-        if ((pos + 1) % SEAT_COUNT == 0)
-        {
-            ss << "|";
-        }
-    }
-    coutcolor(ss.str());
 
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
 
     ctx->cv_seek.notify_all();
     ctx->cv_seek_wake.notify_all();
-    ctx->cv_new_table_req_flag = true;
+    //ctx->cv_new_table_req_flag = true;
 
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
@@ -110,11 +117,13 @@ void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
     std::unique_lock lock(ctx->mt_seek);
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
-    ctx->cv_new_table_req_flag = true;
+    //ctx->cv_new_table_req_flag = true;
 }
 
 void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 {
+
+    coutcolor("Dostałem sygnał rozpoczęcia gry! Stół: ", d.table_number);
 
     std::unique_lock lock(ctx->mt_seek);
 
@@ -135,7 +144,11 @@ void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
 {
     std::unique_lock lock(ctx->mt_play_end_req);
     ctx->end_ready++;
-    coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
+
+    if (DEBUG) {
+        coutcolor("Ilość gotowych do zakończenia: ", ctx->end_ready);
+    }
+
     ctx->cv_game_end_req.notify_all();
 }
 
@@ -143,13 +156,15 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
 {
     std::set<int> companions(d.players, d.players + SEAT_COUNT);
 
-    std::stringstream ss;
-    ss << "do usuniecia";
-    for (int x : companions)
-    {
-        ss << x << " ";
+    if (DEBUG) {
+        std::stringstream ss;
+        ss << "do usuniecia";
+        for (int x : companions)
+        {
+            ss << x << " ";
+        }
+        coutcolor(ss.str());
     }
-    coutcolor(ss.str());
 
     std::vector<QueuePosition> &queue = ctx->queue;
     // queue.erase(
@@ -175,7 +190,9 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
         if (std::find_if(queue.begin(), queue.end(), [](QueuePosition pos)
                          { return pos.pid == RANK; }) == queue.end())
         {
-            coutcolor("SELF NOT IN QUEUE");
+            if (DEBUG) {
+                coutcolor("SELF NOT IN QUEUE");
+            }
         }
     }
 
@@ -185,7 +202,11 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     if (d.table_number == ctx->table_number)
     {
         ctx->cv_game_over_flag = true;
-        coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
+
+        if (DEBUG) {
+            coutcolor("flaga ustawiona na ", ctx->cv_game_over_flag);
+        }
+
         ctx->cv_gameover.notify_all();
     }
 }
