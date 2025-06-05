@@ -44,6 +44,10 @@ void SignalProcesingLoop(Context *ctx) {
 void ContinousLogic(Context *ctx) {
     while (true) {
 
+        if (DEBUG) {
+            coutcolor("zaczynam logic stanu " + StateNames[ctx->current_state]);
+        }
+
         switch (ctx->current_state) {
             case STATE_IDLE:
                 StateIdleLogic(ctx);
@@ -57,7 +61,7 @@ void ContinousLogic(Context *ctx) {
         }
 
         if (DEBUG) {
-            coutcolor("zakończyłem logic stanu " + StateNames[ctx->current_state] + ", idę dalej");
+            coutcolor("zakończyłem logic stanu " + StateNames[ctx->current_state]);
         }
 
         //std::unique_lock(ctx->global_mutex);//???
