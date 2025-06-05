@@ -6,6 +6,7 @@
 #include <shared_mutex>
 #include <mutex>
 #include <string>
+#include <stringstream>
 #include <set>
 #include <chrono>
 #include <map>
