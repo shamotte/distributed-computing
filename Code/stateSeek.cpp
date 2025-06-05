@@ -135,15 +135,6 @@ void StateSeekLogic(Context *ctx)
             // Nie znaleziono stołu
             coutcolor("Nie znaleziono stołu - czekam.");
 
-            // Zakończ stan jeśli ustawiono na PLAY - failsafe
-            if (ctx->cv_new_table_req_flag)
-            {
-                ctx->next_state == STATE_PLAY;
-                coutcolor("Rozpoczynam grę przy stole: ", ctx->table_number);
-                ctx->cv_new_table_req_flag = false;
-                return;
-            }
-
             ctx->cv_seek_wake.wait(lock, [ctx]() {
                 return ctx->cv_new_table_req_flag;
             });
