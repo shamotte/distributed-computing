@@ -94,9 +94,6 @@ void StateSeek::Logic()
 
                     // Obierz stół
                     ctx->table_number = ctx->table_numbers[table_index];
-                    coutcolor("Inicjuję grę przy stole: ", ctx->table_number);
-
-                    randSleep();
 
                     // Wykryj współgraczy
                     ctx->companions.clear();
@@ -116,6 +113,14 @@ void StateSeek::Logic()
                     int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
                     ctx->chosen_game = chosen_game;
 
+                    // Print
+                    std::stringstream ss;
+                    for (auto c : ctx->companions)
+                    {
+                        ss << c << ",";
+                    }
+                    coutcolor("Inicjuję grę przy stole: ", ctx->table_number, " (", ss, ") gra: ", ctx->chosen_game);
+
                     // Wysłanie SIG_TABLE
                     for (auto comp : ctx->companions)
                     {
@@ -127,7 +132,7 @@ void StateSeek::Logic()
 
                     // Własne przejście do stanu gry
                     ctx->next_state = STATE_PLAY;
-                    coutcolor("Rozpoczynam grę dla innych!");
+                    coutcolor("Inicjalizacja gotowa, zaczynam grę!");
                     return;
                 }
             }
