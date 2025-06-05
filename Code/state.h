@@ -66,3 +66,13 @@ public:
     unsigned int players_acknowledged[PLAYER_NUM] = {};
 };
 
+void StateIdleLogic(Context *_ctx);
+void StatePlayLogic(Context *_ctx);
+void StateSeekLogic(Context *_ctx);
+
+void ProcessSignal(MPIMessage &d);
+void ProcessSIG_TABLE_REQ(MPIMessage &d);
+void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d);
+void ProcessSIG_TABLE(MPIMessage &d);
+void ProcessSIG_END_REQ(MPIMessage &d);
+void ProcessSIG_GAME_END(MPIMessage &d);
