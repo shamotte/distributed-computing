@@ -119,7 +119,7 @@ void StateSeek::Logic()
                     {
                         ss << c << ",";
                     }
-                    coutcolor("Inicjuję grę przy stole: ", ctx->table_number, " (", ss, ") gra: ", ctx->chosen_game);
+                    coutcolor("Inicjuję grę przy stole: ", ctx->table_number, " (", ss.str(), ") gra: ", ctx->chosen_game);
 
                     // Wysłanie SIG_TABLE
                     for (auto comp : ctx->companions)
