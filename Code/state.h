@@ -42,13 +42,6 @@ struct QueuePosition
 class Context
 {
 public:
-
-    // Prevent copying
-    Context(const Context&) = delete;
-    Context& operator=(const Context&) = delete;
-    Context(Context&&) = delete;
-    Context& operator=(Context&&) = delete;
-
     std::mutex global_mutex;
 
     State current_state;

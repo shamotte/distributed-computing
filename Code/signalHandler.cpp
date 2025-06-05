@@ -24,8 +24,6 @@ extern unsigned int games_played;
 void ProcessSignal(MPIMessage &d, Context* ctx)
 {
 
-    randSleep();
-
     switch (d.type)
     {
 
@@ -44,22 +42,6 @@ void ProcessSignal(MPIMessage &d, Context* ctx)
     case SIG_GAME_END:
         ProcessSIG_GAME_END(d, ctx);
         break;
-    }
-
-    if (DEBUG) {
-        auto &queue = ctx->queue;
-
-        std::stringstream ss;
-        ss << "STAN KOLEJKI: ";
-        for (int pos = 0; pos < queue.size(); pos += 1)
-        {
-            ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
-            if ((pos + 1) % SEAT_COUNT == 0)
-            {
-                ss << "|";
-            }
-        }
-        coutcolor(ss.str());
     }
 }
 
@@ -93,7 +75,7 @@ void ProcessSIG_TABLE_REQ(MPIMessage &d, Context* ctx)
         ss << "STAN KOLEJKI: ";
         for (int pos = 0; pos < queue.size(); pos += 1)
         {
-            ss << queue[pos].pid << " ";
+            ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
             if ((pos + 1) % SEAT_COUNT == 0)
             {
                 ss << "|";
