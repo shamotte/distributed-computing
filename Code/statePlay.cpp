@@ -1,11 +1,7 @@
 #include "state.h"
 
-StatePlay::StatePlay(Context *_ctx)
-{
-    ctx = _ctx;
-}
 extern std::string global_state_name;
-void StatePlay::Logic()
+void StatePlayLogic(Context *_ctx)
 {
     {
         std::unique_lock lock(ctx->global_mutex);

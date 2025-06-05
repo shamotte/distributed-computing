@@ -21,7 +21,7 @@ extern int RANK, SIZE;
 extern volatile unsigned int global_lamport;
 extern unsigned int games_played;
 
-void BaseState::ProcessSignal(MPIMessage &d)
+void ProcessSignal(MPIMessage &d)
 {
 
     randSleep();
@@ -63,7 +63,7 @@ void BaseState::ProcessSignal(MPIMessage &d)
     }
 }
 
-void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
+void ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
 
     std::vector<QueuePosition> &queue = ctx->queue;
@@ -111,14 +111,14 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
-void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
+void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 {
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
     //ctx->cv_new_table_req_flag = true;
 }
 
-void BaseState::ProcessSIG_TABLE(MPIMessage &d)
+void ProcessSIG_TABLE(MPIMessage &d)
 {
 
     coutcolor("Dostałem sygnał rozpoczęcia gry! Stół: ", d.table_number);
@@ -136,7 +136,7 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
     ctx->cv_seek_wake.notify_all();
 }
 
-void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
+void ProcessSIG_END_REQ(MPIMessage &d)
 {
     ctx->end_ready++;
 
@@ -147,7 +147,7 @@ void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
     ctx->cv_game_end_req.notify_all();
 }
 
-void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
+void ProcessSIG_GAME_END(MPIMessage &d)
 {
     std::set<int> companions(d.players, d.players + SEAT_COUNT);
 
@@ -180,7 +180,7 @@ void BaseState::ProcessSIG_GAME_END(MPIMessage &d)
     std::remove_if(tables.begin(), tables.end(), [&d](int t)
                    { return d.table_number == t; }); // przesuwamy właśnie zwolniony stół na koniec kolejki
 
-    if (ctx->current_state != ctx->States[STATE_IDLE])
+    if (ctx->current_state != STATE_IDLE)
     {
         if (std::find_if(queue.begin(), queue.end(), [](QueuePosition pos)
                          { return pos.pid == RANK; }) == queue.end())

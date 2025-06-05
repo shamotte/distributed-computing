@@ -1,11 +1,7 @@
 #include "state.h"
 
-StateSeek::StateSeek(Context *_ctx)
-{
-    ctx = _ctx;
-}
 extern std::string global_state_name;
-void StateSeek::Logic()
+void StateSeekLogic(Context *_ctx)
 {
     {
         std::unique_lock lock(ctx->global_mutex);

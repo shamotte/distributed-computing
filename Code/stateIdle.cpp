@@ -1,12 +1,7 @@
 #include "state.h"
 
-StateIdle::StateIdle(Context *_ctx)
-{
-    ctx = _ctx;
-}
 extern std::string global_state_name;
-
-void StateIdle::Logic()
+void StateIdleLogic(Context *_ctx)
 {
     {
         std::unique_lock lock(ctx->global_mutex);

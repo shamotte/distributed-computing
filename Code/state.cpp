@@ -21,10 +21,3 @@ extern int RANK, SIZE;
 extern volatile unsigned int global_lamport;
 extern unsigned int games_played;
 
-void BaseState::Logic() {}
-
-BaseState *Context::GetNextState()
-{
-    coutcolor("next state is", priority);
-    return States[next_state];
-}

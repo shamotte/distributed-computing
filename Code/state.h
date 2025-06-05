@@ -38,16 +38,14 @@ struct QueuePosition
     int vote;
 };
 
-class BaseState; // deklarujemy klasę base state
 
 class Context
 {
 public:
     std::mutex global_mutex;
 
-    BaseState *current_state;
+    State current_state;
     State next_state;
-    std::map<State, BaseState *> States;
 
     int priority = 0;
     std::condition_variable cv_seek;
@@ -66,45 +64,5 @@ public:
     volatile int end_ready = 0;
     int chosen_game = 0;
     unsigned int players_acknowledged[PLAYER_NUM] = {};
-
-    std::thread logic_thread;
-
-    BaseState *GetNextState();
-};
-class BaseState
-{
-public:
-    Context *ctx;
-
-    virtual void Logic();
-    virtual void ProcessSignal(MPIMessage &d);
-
-    virtual void ProcessSIG_TABLE_REQ(MPIMessage &d);
-    virtual void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d);
-    virtual void ProcessSIG_TABLE(MPIMessage &d);
-    virtual void ProcessSIG_END_REQ(MPIMessage &d);
-    virtual void ProcessSIG_GAME_END(MPIMessage &d);
 };
 
-class StateIdle : public BaseState
-{
-public:
-    StateIdle(Context *ctx);
-
-    void Logic();
-};
-
-class StateSeek : public BaseState
-{
-public:
-    StateSeek(Context *ctx);
-
-    void Logic();
-};
-
-class StatePlay : public BaseState
-{
-public:
-    StatePlay(Context *ctx);
-    void Logic();
-};

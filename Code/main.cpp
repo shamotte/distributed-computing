@@ -22,10 +22,9 @@ unsigned int games_played;
 
 std::string global_state_name = "";
 
-void SignalProcesingLoop(Context *ctx)
-{
-    while (true)
-    {
+void SignalProcesingLoop(Context *ctx) {
+    while (true) {
+
         MPIMessage d;
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -38,30 +37,38 @@ void SignalProcesingLoop(Context *ctx)
         if (DEBUG) {
             coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
         }
-        ctx->current_state->ProcessSignal(d);
+        ProcessSignal(d);
     }
 }
 
-void ContinousLogic(Context *ctx)
-{
-    std::thread logic_thread;
-    while (true)
-    {
-        logic_thread = std::thread(&BaseState::Logic, ctx->current_state);
+void ContinousLogic(Context *ctx) {
+    while (true) {
 
-        logic_thread.join();
+        switch (ctx->current_state) {
+            case STATE_IDLE:
+                StateIdleLogic(ctx);
+                break;
+            case STATE_SEEK:
+                StateSeekLogic(ctx);
+                break;
+            case STATE_PLAY:
+                StatePlayLogic(ctx);
+                break;
+        }
+
         if (DEBUG) {
-            coutcolor("zakończyłem logic idę dalej");
+            coutcolor("zakończyłem logic stanu " + StateNames[ctx->current_state] + ", idę dalej");
         }
 
         //std::unique_lock(ctx->global_mutex);//???
-        ctx->current_state = ctx->States[ctx->next_state];
+        ctx->current_state = ctx->next_state;
     }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+
 #pragma region initialization
+
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
@@ -91,13 +98,7 @@ int main(int argc, char **argv)
 
     Context *ctx = new Context();
 
-    std::map<State, BaseState *> &states = ctx->States;
-
-    states[STATE_IDLE] = new StateIdle(ctx);
-    states[STATE_SEEK] = new StateSeek(ctx);
-    states[STATE_PLAY] = new StatePlay(ctx);
-
-    ctx->current_state = states[STATE_IDLE];
+    ctx->current_state = STATE_IDLE;
 
     ctx->table_numbers;
     for (int i = 0; i < TABLE_NUM; i++)
