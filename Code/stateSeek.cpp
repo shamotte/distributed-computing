@@ -23,7 +23,7 @@ void StateSeekLogic(Context *ctx)
     {
         std::unique_lock lock(ctx->global_mutex);
 
-        ctx->cv_seek.wait(lock, [this]() { 
+        ctx->cv_seek.wait(lock, [ctx]() { 
 
             if (DEBUG) {
                 std::stringstream ss;
@@ -36,9 +36,9 @@ void StateSeekLogic(Context *ctx)
 
 
             return std::all_of(
-                this->ctx->players_acknowledged,
-                this->ctx->players_acknowledged + PLAYER_NUM,
-                [this](int b){ return ctx->priority < b; }
+                ctx->players_acknowledged,
+                ctx->players_acknowledged + PLAYER_NUM,
+                [ctx](int b){ return ctx->priority < b; }
             );
         });
 
@@ -145,8 +145,8 @@ void StateSeekLogic(Context *ctx)
                 return;
             }
 
-            ctx->cv_seek_wake.wait(lock, [this]() {
-                return this->ctx->cv_new_table_req_flag;
+            ctx->cv_seek_wake.wait(lock, [ctx]() {
+                return ctx->cv_new_table_req_flag;
             });
 
             // Zakończ stan jeśli ustawiono na PLAY

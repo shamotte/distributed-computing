@@ -63,8 +63,8 @@ void StatePlayLogic(Context *ctx)
 
         global_state_name = "PLAY:END";
         {
-            ctx->cv_gameover.wait(lock, [this](){
-                return this->ctx->cv_game_over_flag;
+            ctx->cv_gameover.wait(lock, [ctx](){
+                return ctx->cv_game_over_flag;
             });
         }
 
