@@ -66,9 +66,9 @@ public:
     unsigned int players_acknowledged[PLAYER_NUM] = {};
 };
 
-void StateIdleLogic(Context *_ctx);
-void StatePlayLogic(Context *_ctx);
-void StateSeekLogic(Context *_ctx);
+void StateIdleLogic(Context *ctx);
+void StatePlayLogic(Context *ctx);
+void StateSeekLogic(Context *ctx);
 
 void ProcessSignal(MPIMessage &d);
 void ProcessSIG_TABLE_REQ(MPIMessage &d);

@@ -1,7 +1,7 @@
 #include "state.h"
 
 extern std::string global_state_name;
-void StatePlayLogic(Context *_ctx)
+void StatePlayLogic(Context *ctx)
 {
     {
         std::unique_lock lock(ctx->global_mutex);
@@ -32,11 +32,11 @@ void StatePlayLogic(Context *_ctx)
 
         global_state_name = "PLAY:WAIT";
 
-        ctx->cv_game_end_req.wait(lock, [this]() {
+        ctx->cv_game_end_req.wait(lock, [ctx]() {
             if (DEBUG) {
                 coutcolor("obudzoned ", ctx->end_ready);
             }
-            return this->ctx->end_ready >= SEAT_COUNT; 
+            return ctx->end_ready >= SEAT_COUNT; 
         });
 
         ctx->end_ready = 0;
