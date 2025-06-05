@@ -44,109 +44,103 @@ void StateSeekLogic(Context *ctx)
 
         coutcolor(" Otrzymałem odpowiedzi!");
 
-        ctx->cv_new_table_req_flag = false;
-        while (true)
+        //ctx->cv_new_table_req_flag = false; //???
+
+        if (DEBUG) {
+            coutcolor("----- SPRAWDZAM WEJŚCIE -----");
+        }
+
+        auto &queue = ctx->queue;
+
+        if (DEBUG) {
+            std::stringstream ss;
+            ss << "STAN KOLEJKI: ";
+            for (int pos = 0; pos < queue.size(); pos += 1)
+            {
+                ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
+                if ((pos + 1) % SEAT_COUNT == 0)
+                {
+                    ss << "|";
+                }
+            }
+            coutcolor(ss.str());
+        }
+
+        for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT)
         {
-
-            if (DEBUG) {
-                coutcolor("----- SPRAWDZAM WEJŚCIE -----");
+            int table_index = pos / SEAT_COUNT;
+            if (pos + SEAT_COUNT > queue.size())
+            {
+                // coutcolor(RANK, " nie ma wystarczającej liczby graczy");
+                break;
             }
 
-            auto &queue = ctx->queue;
+            // coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
 
-            if (DEBUG) {
+            int first_player_index = table_index * SEAT_COUNT;
+            int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
+
+            bool is_last = RANK == queue[last_player_index].pid;
+            // coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
+            if (is_last)
+            {
+
+                // Obierz stół
+                ctx->table_number = ctx->table_numbers[table_index];
+
+                // Wykryj współgraczy
+                ctx->companions.clear();
+                for (int i = first_player_index; i <= last_player_index; i++)
+                {
+                    ctx->companions.insert(queue[i].pid);
+                }
+
+                // Zlicz głosy
+                int votes[SEAT_COUNT] = {};
+                for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++)
+                {
+                    votes[queue[i].vote]++;
+                }
+
+                // Indeks o największej liczbie głosów
+                int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
+                ctx->chosen_game = chosen_game;
+
+                // Print
                 std::stringstream ss;
-                ss << "STAN KOLEJKI: ";
-                for (int pos = 0; pos < queue.size(); pos += 1)
+                for (auto c : ctx->companions)
                 {
-                    ss << queue[pos].pid << "(" << queue[pos].priority << ")" << " ";
-                    if ((pos + 1) % SEAT_COUNT == 0)
+                    ss << c << ",";
+                }
+                coutcolor("Inicjuję grę przy stole: ", ctx->table_number, " (", ss.str(), ") gra: ", ctx->chosen_game);
+
+                // Wysłanie SIG_TABLE
+                for (auto comp : ctx->companions)
+                {
+                    if (comp != RANK)
                     {
-                        ss << "|";
+                        Send_SIG_TABLE(comp, ctx->companions, ctx->table_number, chosen_game);
                     }
                 }
-                coutcolor(ss.str());
-            }
 
-            for (int pos = 0; pos < queue.size(); pos += SEAT_COUNT)
-            {
-                int table_index = pos / SEAT_COUNT;
-                if (pos + SEAT_COUNT > queue.size())
-                {
-                    // coutcolor(RANK, " nie ma wystarczającej liczby graczy");
-                    break;
-                }
-
-                // coutcolor(RANK, "stół o indeksie", table_index, "zawiera graczy", queue[pos].pid, queue[pos + 1].pid, queue[pos + 2].pid);
-
-                int first_player_index = table_index * SEAT_COUNT;
-                int last_player_index = table_index * SEAT_COUNT + SEAT_COUNT - 1;
-
-                bool is_last = RANK == queue[last_player_index].pid;
-                // coutcolor(RANK, "jestem ostatni? (", queue[last_player_index].pid, ")", is_last);
-                if (is_last)
-                {
-
-                    // Obierz stół
-                    ctx->table_number = ctx->table_numbers[table_index];
-
-                    // Wykryj współgraczy
-                    ctx->companions.clear();
-                    for (int i = first_player_index; i <= last_player_index; i++)
-                    {
-                        ctx->companions.insert(queue[i].pid);
-                    }
-
-                    // Zlicz głosy
-                    int votes[SEAT_COUNT] = {};
-                    for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++)
-                    {
-                        votes[queue[i].vote]++;
-                    }
-
-                    // Indeks o największej liczbie głosów
-                    int chosen_game = std::max_element(votes, votes + GAME_NUM) - votes;
-                    ctx->chosen_game = chosen_game;
-
-                    // Print
-                    std::stringstream ss;
-                    for (auto c : ctx->companions)
-                    {
-                        ss << c << ",";
-                    }
-                    coutcolor("Inicjuję grę przy stole: ", ctx->table_number, " (", ss.str(), ") gra: ", ctx->chosen_game);
-
-                    // Wysłanie SIG_TABLE
-                    for (auto comp : ctx->companions)
-                    {
-                        if (comp != RANK)
-                        {
-                            Send_SIG_TABLE(comp, ctx->companions, ctx->table_number, chosen_game);
-                        }
-                    }
-
-                    // Własne przejście do stanu gry
-                    ctx->next_state = STATE_PLAY;
-                    coutcolor("Inicjalizacja gotowa, zaczynam grę!");
-                    return;
-                }
-            }
-
-            // Nie znaleziono stołu
-            coutcolor("Nie znaleziono stołu - czekam.");
-
-            ctx->cv_seek_wake.wait(lock, [ctx]() {
-                return ctx->cv_new_table_req_flag;
-            });
-
-            // Zakończ stan jeśli ustawiono na PLAY
-            if (ctx->cv_new_table_req_flag)
-            {
-                ctx->next_state == STATE_PLAY;
-                coutcolor("Rozpoczynam grę przy stole: ", ctx->table_number);
-                ctx->cv_new_table_req_flag = false;
+                // Własne przejście do stanu gry
+                ctx->next_state = STATE_PLAY;
+                coutcolor("Inicjalizacja gotowa, zaczynam grę!");
                 return;
             }
         }
+
+        // Nie znaleziono stołu
+        coutcolor("Nie znaleziono stołu - czekam.");
+
+        ctx->cv_seek_wake.wait(lock, [ctx]() {
+            return ctx->cv_new_table_req_flag;
+        });
+
+        // Zakończ stan jeśli ustawiono na PLAY
+        ctx->next_state == STATE_PLAY;
+        coutcolor("Rozpoczynam grę przy stole: ", ctx->table_number);
+        ctx->cv_new_table_req_flag = false;
+        return;
     }
 }
