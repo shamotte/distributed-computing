@@ -37,7 +37,7 @@ void SignalProcesingLoop(Context *ctx) {
         if (DEBUG) {
             coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
         }
-        ProcessSignal(d);
+        ProcessSignal(d, ctx);
     }
 }
 

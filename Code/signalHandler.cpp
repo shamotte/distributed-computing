@@ -21,7 +21,7 @@ extern int RANK, SIZE;
 extern volatile unsigned int global_lamport;
 extern unsigned int games_played;
 
-void ProcessSignal(MPIMessage &d)
+void ProcessSignal(MPIMessage &d, Context* ctx)
 {
 
     randSleep();
@@ -63,7 +63,7 @@ void ProcessSignal(MPIMessage &d)
     }
 }
 
-void ProcessSIG_TABLE_REQ(MPIMessage &d)
+void ProcessSIG_TABLE_REQ(MPIMessage &d, Context* ctx)
 {
 
     std::vector<QueuePosition> &queue = ctx->queue;
@@ -111,14 +111,14 @@ void ProcessSIG_TABLE_REQ(MPIMessage &d)
     Send_SIG_SIG_TABLE_ACK(d.pid);
 }
 
-void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
+void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d, Context* ctx)
 {
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
     //ctx->cv_new_table_req_flag = true;
 }
 
-void ProcessSIG_TABLE(MPIMessage &d)
+void ProcessSIG_TABLE(MPIMessage &d, Context* ctx)
 {
 
     coutcolor("Dostałem sygnał rozpoczęcia gry! Stół: ", d.table_number);
@@ -136,7 +136,7 @@ void ProcessSIG_TABLE(MPIMessage &d)
     ctx->cv_seek_wake.notify_all();
 }
 
-void ProcessSIG_END_REQ(MPIMessage &d)
+void ProcessSIG_END_REQ(MPIMessage &d, Context* ctx)
 {
     ctx->end_ready++;
 
@@ -147,7 +147,7 @@ void ProcessSIG_END_REQ(MPIMessage &d)
     ctx->cv_game_end_req.notify_all();
 }
 
-void ProcessSIG_GAME_END(MPIMessage &d)
+void ProcessSIG_GAME_END(MPIMessage &d, Context* ctx)
 {
     std::set<int> companions(d.players, d.players + SEAT_COUNT);
 

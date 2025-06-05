@@ -70,9 +70,9 @@ void StateIdleLogic(Context *ctx);
 void StatePlayLogic(Context *ctx);
 void StateSeekLogic(Context *ctx);
 
-void ProcessSignal(MPIMessage &d);
-void ProcessSIG_TABLE_REQ(MPIMessage &d);
-void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d);
-void ProcessSIG_TABLE(MPIMessage &d);
-void ProcessSIG_END_REQ(MPIMessage &d);
-void ProcessSIG_GAME_END(MPIMessage &d);
+void ProcessSignal(MPIMessage &d, Context* ctx);
+void ProcessSIG_TABLE_REQ(MPIMessage &d, Context* ctx);
+void ProcessSIG_SIG_TABLE_ACK(MPIMessage &d, Context* ctx);
+void ProcessSIG_TABLE(MPIMessage &d, Context* ctx);
+void ProcessSIG_END_REQ(MPIMessage &d, Context* ctx);
+void ProcessSIG_GAME_END(MPIMessage &d, Context* ctx);
