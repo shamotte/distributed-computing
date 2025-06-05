@@ -29,7 +29,10 @@ void SignalProcesingLoop(Context *ctx) {
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        coutcolor("Waiting to handle message...");
+        if (DEBUG) {
+            coutcolor("Waiting to handle message...");
+        }
+
         std::unique_lock lock(ctx->global_mutex);
 
         global_lamport = (d.lamport > global_lamport ? d.lamport : global_lamport) + 1; // std::max(global_lamport, d.lamport) + 1;

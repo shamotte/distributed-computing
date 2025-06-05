@@ -2,7 +2,7 @@
 
 extern std::string global_state_name;
 void StatePlayLogic(Context *ctx)
-{coutcolor("AAAAAAA");
+{
     {
         std::unique_lock lock(ctx->global_mutex);
 
