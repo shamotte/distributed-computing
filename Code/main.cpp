@@ -49,7 +49,9 @@ void ContinousLogic(Context *ctx)
         logic_thread = std::thread(&BaseState::Logic, ctx->current_state);
 
         logic_thread.join();
-        // coutcolor("zakończyłem logic idę dalej");
+        if (DEBUG) {
+            coutcolor("zakończyłem logic idę dalej");
+        }
 
         std::unique_lock(ctx->global_mutex);//???
         ctx->current_state = ctx->States[ctx->next_state];
