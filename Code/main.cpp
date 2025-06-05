@@ -64,7 +64,7 @@ void ContinousLogic(Context *ctx) {
             coutcolor("zakończyłem logic stanu " + StateNames[ctx->current_state]);
         }
 
-        //std::unique_lock(ctx->global_mutex);//???
+        std::unique_lock(ctx->global_mutex);//???
         ctx->current_state = ctx->next_state;
     }
 }
