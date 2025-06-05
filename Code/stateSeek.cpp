@@ -96,10 +96,14 @@ void StateSeekLogic(Context *ctx)
                 }
 
                 // Zlicz głosy
-                int votes[SEAT_COUNT] = {};
+                int votes[GAME_NUM] = {};
                 for (int i = table_index * SEAT_COUNT; i < table_index * SEAT_COUNT + SEAT_COUNT; i++)
                 {
-                    votes[queue[i].vote]++;
+                    if (queue[i].vote >= 0 && queue[i].vote < GAME_NUM) {
+                        votes[queue[i].vote]++;
+                    } else {
+                        coutcolor("VOTE OUT OF BOUNDS!!!");
+                    }
                 }
 
                 // Indeks o największej liczbie głosów
