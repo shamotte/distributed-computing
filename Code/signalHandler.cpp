@@ -30,19 +30,19 @@ void ProcessSignal(MPIMessage &d, Context* ctx)
     {
 
     case SIG_TABLE_REQ:
-        ProcessSIG_TABLE_REQ(d);
+        ProcessSIG_TABLE_REQ(d, ctx);
         break;
     case SIG_TABLE_ACK:
-        ProcessSIG_SIG_TABLE_ACK(d);
+        ProcessSIG_SIG_TABLE_ACK(d, ctx);
         break;
     case SIG_TABLE:
-        ProcessSIG_TABLE(d);
+        ProcessSIG_TABLE(d, ctx);
         break;
     case SIG_END_REQ:
-        ProcessSIG_END_REQ(d);
+        ProcessSIG_END_REQ(d, ctx);
         break;
     case SIG_GAME_END:
-        ProcessSIG_GAME_END(d);
+        ProcessSIG_GAME_END(d, ctx);
         break;
     }
 
