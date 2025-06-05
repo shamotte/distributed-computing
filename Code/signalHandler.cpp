@@ -24,6 +24,8 @@ extern unsigned int games_played;
 void BaseState::ProcessSignal(MPIMessage &d)
 {
 
+    std::unique_lock lock(ctx->global_mutex);
+
     randSleep();
 
     switch (d.type)
@@ -65,7 +67,6 @@ void BaseState::ProcessSignal(MPIMessage &d)
 
 void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 {
-    std::unique_lock lock(ctx->mt_seek);
 
     std::vector<QueuePosition> &queue = ctx->queue;
     ctx->queue.insert(
@@ -114,7 +115,6 @@ void BaseState::ProcessSIG_TABLE_REQ(MPIMessage &d)
 
 void BaseState::ProcessSIG_SIG_TABLE_ACK(MPIMessage &d)
 {
-    std::unique_lock lock(ctx->mt_seek);
     ctx->players_acknowledged[d.pid] = std::max(d.lamport, ctx->players_acknowledged[d.pid]);
     ctx->cv_seek.notify_all();
     //ctx->cv_new_table_req_flag = true;
@@ -124,8 +124,6 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 {
 
     coutcolor("Dostałem sygnał rozpoczęcia gry! Stół: ", d.table_number);
-
-    std::unique_lock lock(ctx->mt_seek);
 
     ctx->table_number = d.table_number;
     ctx->chosen_game = d.chosen_game;
@@ -142,7 +140,6 @@ void BaseState::ProcessSIG_TABLE(MPIMessage &d)
 
 void BaseState::ProcessSIG_END_REQ(MPIMessage &d)
 {
-    std::unique_lock lock(ctx->mt_play_end_req);
     ctx->end_ready++;
 
     if (DEBUG) {

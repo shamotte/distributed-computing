@@ -18,7 +18,6 @@
 extern int RANK, SIZE;
 extern volatile unsigned int global_lamport;
 extern MPI_Datatype my_data;
-extern std::mutex pls_work;
 
 void Broadcast_SIG_TABLE_REQ(int priority, int vote)
 {

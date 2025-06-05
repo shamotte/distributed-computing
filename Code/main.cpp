@@ -22,8 +22,6 @@ unsigned int games_played;
 
 std::string global_state_name = "";
 
-std::mutex pls_work;
-
 void SignalProcesingLoop(Context *ctx)
 {
     while (true)
@@ -32,15 +30,13 @@ void SignalProcesingLoop(Context *ctx)
         MPI_Status status;
         MPI_Recv(&d, 1, my_data, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        std::unique_lock l1(pls_work);
+        std::unique_lock lock(global_mutex);
+
         global_lamport = (d.lamport > global_lamport ? d.lamport : global_lamport) + 1; // std::max(global_lamport, d.lamport) + 1;
 
         if (DEBUG) {
             coutcolor("otrzymano  ", d.priority, "od ", "(", d.pid, ")", PlayerNames[d.pid], " o typie ", MessageNames[d.type], " i timestampie :", d.lamport);
         }
-
-        std::unique_lock l2(ctx->state_mutex);
-
         ctx->current_state->ProcessSignal(d);
     }
 }
@@ -55,7 +51,7 @@ void ContinousLogic(Context *ctx)
         logic_thread.join();
         // coutcolor("zakończyłem logic idę dalej");
 
-        std::unique_lock(ctx->state_mutex);
+        std::unique_lock(ctx->global_mutex);//???
         ctx->current_state = ctx->States[ctx->next_state];
     }
 }

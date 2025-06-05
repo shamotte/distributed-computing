@@ -42,10 +42,12 @@ class BaseState; // deklarujemy klasę base state
 class Context
 {
 public:
+    std::mutex global_mutex;
+
     BaseState *current_state;
     State next_state;
     std::map<State, BaseState *> States;
-    std::mutex state_mutex;
+
     int priority = 0;
     std::condition_variable cv_seek;
     std::condition_variable cv_seek_wake;
@@ -57,10 +59,6 @@ public:
 
     std::vector<QueuePosition> queue = {};
     std::vector<int> table_numbers = {};
-
-    std::mutex mt_play_end_req;
-
-    std::mutex mt_seek;
 
     int table_number = 0;
     std::set<int> companions = {};
