@@ -24,8 +24,6 @@ extern unsigned int games_played;
 void BaseState::ProcessSignal(MPIMessage &d)
 {
 
-    std::unique_lock lock(ctx->global_mutex);
-
     randSleep();
 
     switch (d.type)
